@@ -1,6 +1,6 @@
 {
   "name": "@openfile/protocol",
-  "version": "0.2.0",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "description": "Openfile protocol kernels: CriticMarkup review, line endings, the chat preset registry. Pure TS, no IO, no dependencies.",

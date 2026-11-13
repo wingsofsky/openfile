@@ -1,8 +1,8 @@
 name: Release
 
-# 打 tag 触发：git tag v0.2.0 && git push --tags
+# 打 tag 触发：git tag v0.1.0 && git push --tags
 # 产出（草稿 release）：Windows -setup.exe（只出 NSIS，见 src-tauri/tauri.windows.conf.json），macOS .dmg（Apple Silicon + Intel），
-# 每个安装包一份构建来源证明（actions/attest，仓库公开时才出），全部安装包的 SHA256SUMS。
+# 每个安装包一份构建来源证明（actions/attest，仓库公开时才出），随包 git 的对应源码包（GPL-2.0），以上文件的 SHA256SUMS。
 # 安装包自带官方 Node 与 dugite-native 的 git：scripts/fetch-sidecars.mjs 下载并校验，tauri.bundle.conf.json 合进去。
 # 未配置代码签名：Windows 首次运行有 SmartScreen 提示（更多信息 → 仍要运行）；macOS 15 起要到
 # 系统设置 → 隐私与安全性 里放行。要去掉提示得配签名与 Apple 公证（见 https://tauri.app/distribute/）。
@@ -65,7 +65,9 @@ jobs:
             - Windows: if SmartScreen stops the installer, choose More info → Run anyway.
             - macOS 15 and later: after the first blocked launch, open System Settings → Privacy & Security and choose Open Anyway.
 
-            Verify a download: compare it with SHA256SUMS, or run `gh attestation verify <file> --repo ${{ github.repository }}`.
+            Verify a download: compare it with SHA256SUMS${{ !github.event.repository.private && format(', or run `gh attestation verify <file> --repo {0}`', github.repository) || '' }}.
+
+            The bundled Git is GPL-2.0; its source code is attached as `*-source.tar.gz`. The Windows package also contains MSYS2 tools from Git for Windows, with sources at https://github.com/git-for-windows/MSYS2-packages.
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }} --config src-tauri/tauri.bundle.conf.json
@@ -81,13 +83,19 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Add SHA256SUMS to the draft release
+      - uses: actions/checkout@v4
+      - name: Add Git source and SHA256SUMS to the draft release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ github.ref_name }}
         run: |
-          mkdir assets && cd assets
+          mkdir assets
+          # 随包 git 是 GPL-2.0：对应源码随每个 release 附上，文件名与地址出自 fetch-sidecars.mjs 钉住的版本
+          node scripts/fetch-sidecars.mjs --source-urls | while read -r name url; do
+            curl -fsSL --retry 3 -o "assets/$name" "$url"
+          done
+          cd assets
           gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern '*.exe' --pattern '*.dmg'
           sha256sum -- * > SHA256SUMS
           cat SHA256SUMS
-          gh release upload "$TAG" SHA256SUMS --repo "$GITHUB_REPOSITORY" --clobber
+          gh release upload "$TAG" *-source.tar.gz SHA256SUMS --repo "$GITHUB_REPOSITORY" --clobber

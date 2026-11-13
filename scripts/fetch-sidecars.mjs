@@ -3,6 +3,7 @@
  * 只在出安装包时跑（release.yml）；日常开发与 `pnpm tauri dev` 用 PATH 上的 node / git，不需要这一步。
  *
  *   node scripts/fetch-sidecars.mjs [--target <rust 目标三元组>]     缺省取 rustc 的宿主三元组
+ *   node scripts/fetch-sidecars.mjs --source-urls                   只打印随包 git 的对应源码包（GPL-2.0）：「文件名 地址」每行一条，release.yml 附到 release 上
  *
  * 产出（都已 gitignore）：
  *   src-tauri/binaries/node-<三元组>[.exe]       → tauri.bundle.conf.json 的 externalBin，装好后在主程序旁边叫 node[.exe]
@@ -40,6 +41,18 @@ const TARGETS = {
   "aarch64-apple-darwin": { node: "darwin-arm64", archive: "tar.gz", git: "macOS-arm64", exe: "" },
   "x86_64-apple-darwin": { node: "darwin-x64", archive: "tar.gz", git: "macOS-x64", exe: "" },
 };
+
+if (process.argv.includes("--source-urls")) {
+  // macOS 包是上游 git 自建，Windows 包是 Git for Windows 的 MinGit，dugite-native 是两者的构建脚本
+  const gitTag = DUGITE.tag.replace(/-\d+$/, "");
+  const sources = [
+    [`git-${gitTag.slice(1)}-source.tar.gz`, `https://github.com/git/git/archive/refs/tags/${gitTag}.tar.gz`],
+    [`git-for-windows-${DUGITE.gitForWindows.slice(1)}-source.tar.gz`, `https://github.com/git-for-windows/git/archive/refs/tags/${DUGITE.gitForWindows}.tar.gz`],
+    [`dugite-native-${DUGITE.tag.slice(1)}-source.tar.gz`, `https://github.com/desktop/dugite-native/archive/refs/tags/${DUGITE.tag}.tar.gz`],
+  ];
+  for (const [name, url] of sources) console.log(`${name} ${url}`);
+  process.exit(0);
+}
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const tauri = path.join(repo, "src-tauri");

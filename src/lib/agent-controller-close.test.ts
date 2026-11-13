@@ -22,8 +22,10 @@ vi.mock("./backend", () => ({ backend: {
 import { useApp } from "../state/store";
 import { useAgent } from "../state/agent";
 import { flushSessionArchive, startSession } from "./agent-controller";
+import { setLocale } from "../i18n";
 
 describe("desktop close persistence", () => {
+  setLocale("zh"); // 断言按中文文案写；默认语言随运行机器的 navigator.language
   it("holds the window on failure, warns browser unload while dirty, then closes only after successful retry", async () => {
     useApp.setState({ lib: { root: "/close-test", name: "test" } });
     useAgent.setState({ presetId: "claude" });

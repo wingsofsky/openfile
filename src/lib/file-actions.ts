@@ -222,7 +222,7 @@ export async function copyPath(rel: string, absolute: boolean) {
  * 这是发给 agent 的内容，不是界面文案，不过 t()。
  */
 export function reviewPrompt(root: string, rel: string): string {
-  return `看一下 ${libraryAbsPath(root, rel)} 我的批注，回答问题并应用改动`;
+  return t("看一下 {0} 我的批注，回答问题并应用改动", [libraryAbsPath(root, rel)]);
 }
 
 export async function copyReviewPrompt(rel: string): Promise<boolean> {

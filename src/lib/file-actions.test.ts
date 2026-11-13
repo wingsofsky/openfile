@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { reviewPrompt, targetsOf, topLevel } from "./file-actions";
 import { useFiles } from "../state/files";
+import { setLocale } from "../i18n";
 
 describe("多选的作用对象", () => {
   beforeEach(() => useFiles.setState({ selected: [], anchor: null }));
@@ -19,11 +20,17 @@ describe("多选的作用对象", () => {
 });
 
 describe("交给 agent 的预设提示词", () => {
+  beforeEach(() => setLocale("zh")); // 断言按中文文案写；默认语言随运行机器的 navigator.language
   it("带文件在磁盘上的精确绝对路径", () => {
     expect(reviewPrompt("/Users/me/lib", "docs/稿子.md")).toBe("看一下 /Users/me/lib/docs/稿子.md 我的批注，回答问题并应用改动");
   });
   it("Windows 文库根用反斜杠拼，剥掉 \\\\?\\ 前缀", () => {
     expect(reviewPrompt("\\\\?\\D:\\库", "docs/稿子.md")).toBe("看一下 D:\\库\\docs\\稿子.md 我的批注，回答问题并应用改动");
+  });
+  it("英文界面给英文提示词", () => {
+    setLocale("en");
+    expect(reviewPrompt("/Users/me/lib", "docs/draft.md")).toBe("Read my comments in /Users/me/lib/docs/draft.md, answer the questions and apply the changes");
+    setLocale("zh");
   });
 });
 

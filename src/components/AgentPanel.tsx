@@ -227,7 +227,7 @@ function Launcher() {
         >
           {AGENT_PRESETS.map((p) => (
             <option key={p.id} value={p.id}>
-              {p.label}
+              {p.id === "custom" ? t("自定义命令") : p.label}
             </option>
           ))}
         </select>
@@ -290,7 +290,7 @@ function UsageBar() {
   const pct = contextPercent(usage.used, usage.size);
   return (
     <div
-      className="flex shrink-0 items-center gap-1.5 border-b border-rule px-3 py-1 font-sans text-[12px] text-muted"
+      className="flex shrink-0 items-center gap-1.5 whitespace-nowrap border-b border-rule px-3 py-1 font-sans text-[12px] text-muted"
       title={t("上下文占用，不是本次会话的累计消耗——压缩后会回落。")}
     >
       <span>{t("上下文")}</span>

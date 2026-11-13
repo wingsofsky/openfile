@@ -1,6 +1,6 @@
 [package]
 name = "openfile"
-version = "0.2.0"
+version = "0.1.0"
 description = "Openfile — the document UI for CLI agents"
 authors = ["wingsofsky"]
 license = "Apache-2.0"

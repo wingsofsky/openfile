@@ -11,7 +11,7 @@
   "executors": [
     {
       "id": "codex",
-      "label": "Codex（GPT）",
+      "label": "Codex (GPT)",
       "bin": {
         "env": "OPENFILE_CODEX_BIN",
         "names": ["codex"],
@@ -29,7 +29,7 @@
     },
     {
       "id": "agy",
-      "label": "Antigravity CLI（Gemini）",
+      "label": "Antigravity CLI (Gemini)",
       "bin": {
         "env": "OPENFILE_AGY_BIN",
         "names": ["agy"],
@@ -43,7 +43,7 @@
     },
     {
       "id": "grok",
-      "label": "Grok Build（xAI）",
+      "label": "Grok Build (xAI)",
       "bin": {
         "env": "OPENFILE_GROK_BIN",
         "names": ["grok"],

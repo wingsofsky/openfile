@@ -1079,7 +1079,7 @@ function ReviewBar({
         {counts.ins > 0 && <span className="mr-1.5 text-accent-cool">{counts.ins} {t("增")}</span>}
         {counts.del > 0 && <span className="mr-1.5 text-accent-warm">{counts.del} {t("删")}</span>}
         {counts.sub > 0 && <span className="mr-1.5 text-ink">{counts.sub} {t("替")}</span>}
-        {counts.comment > 0 && <span className="mr-1.5">{counts.comment} {t("条批注")}</span>}
+        {counts.comment > 0 && <span className="mr-1.5">{t("{0} 条批注", [counts.comment])}</span>}
       </span>
       {confirm === null ? (
         <>

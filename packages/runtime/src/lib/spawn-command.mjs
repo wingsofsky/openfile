@@ -125,12 +125,12 @@ export function resolveSpawnCommand(cmd, args, { platform = process.platform, en
  * 杀整棵进程树。Windows 上 proc.kill() 只终止直接子进程——npx-cli → 适配器、cmd → cloudflared 这类孙进程
  * 会成孤儿（libuv 的作业对象允许子进程静默脱离），所以用 taskkill /T /F 顺父 PID 杀全树；其它平台保持 proc.kill()。
  * sync：dev server 关停时用，确保进程退出前树已杀完。
+ * 没起来（没有 pid）或已退出的不动：PID 可能已被系统复用；POSIX 上对没起来的子进程调 kill()，
+ * Node 22 会把信号发给整个进程组，连同本进程一起杀掉。
  */
 export function killProcessTree(proc, { sync = false, platform = process.platform } = {}) {
-  if (!proc) return;
+  if (!proc || !proc.pid || proc.exitCode !== null || proc.signalCode !== null) return;
   if (platform === "win32") {
-    // 已退出就不动：PID 可能已被系统复用
-    if (!proc.pid || proc.exitCode !== null || proc.signalCode !== null) return;
     const args = ["/pid", String(proc.pid), "/T", "/F"];
     if (sync) spawnSync("taskkill", args, { stdio: "ignore", windowsHide: true });
     else execFile("taskkill", args, { windowsHide: true }, () => {});

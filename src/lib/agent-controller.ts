@@ -40,6 +40,7 @@ import type { AgentProcessHandle } from "./types";
 import { createSessionWriter, formatHistoryContext, historySource, readHistoryContext, serializeSession, type SessionRecord } from "./session-history";
 import { currentFileContext } from "../state/agent-context";
 import { documentChanges, planTurnUndo, turnLabel } from "./turn-changes";
+import { t } from "../i18n";
 
 /* ------------------------------------------------------------------ */
 /* 纯辅助（可单测）                                                      */
@@ -101,7 +102,7 @@ const errMsg = (e: unknown) => (e instanceof Error ? e.message : String(e));
 export function friendlyStartError(e: unknown, stderrTail: string[]): string {
   for (const line of stderrTail) {
     const m = /spawn (\S+) ENOENT/.exec(line);
-    if (m) return `找不到命令「${m[1]}」——这台机器上没装或不在登录 shell 的 PATH 里（安装方式见预设说明）；装在别处时可改用「自定义命令」填绝对路径`;
+    if (m) return t("找不到命令「{0}」——这台机器上没装或不在登录 shell 的 PATH 里（安装方式见预设说明）；装在别处时可改用「自定义命令」填绝对路径", [m[1]]);
   }
   let msg = errMsg(e);
   if (/^\s*\{/.test(msg)) {
@@ -117,10 +118,10 @@ export function friendlyStartError(e: unknown, stderrTail: string[]): string {
 
 /** Gemini CLI 个人账号通道已停用时 stderr 里的那句话 */
 export const GEMINI_RETIRED = /no longer supported for Gemini Code Assist/i;
-const GEMINI_RETIRED_HINT = "Google 已于 2026-06-18 停止 Gemini CLI 的个人 Google 账号登录（免费 / AI Pro / Ultra 都并入 Antigravity）。Gemini CLI 现在只能用 API key（在 shell 配置里设 GEMINI_API_KEY）或 Vertex AI；用 Google 账号订阅的请改走 Antigravity。";
+const geminiRetiredHint = () => t("Google 已于 2026-06-18 停止 Gemini CLI 的个人 Google 账号登录（免费 / AI Pro / Ultra 都并入 Antigravity）。Gemini CLI 现在只能用 API key（在 shell 配置里设 GEMINI_API_KEY）或 Vertex AI；用 Google 账号订阅的请改走 Antigravity。");
 
 /** 未登录的提示：适配器只在通知里说 Not logged in，第一轮才报 Authentication required */
-const AUTH_HINT = "先在终端完成登录（Claude Code：claude login；Codex：codex login；或设置对应 API key），再重启会话";
+const authHint = () => t("先在终端完成登录（Claude Code：claude login；Codex：codex login；或设置对应 API key），再重启会话");
 
 /** ACP auth_required（RequestError.authRequired 的错误码） */
 const isAuthRequired = (e: unknown) => e instanceof RequestError && e.code === -32000;
@@ -221,13 +222,13 @@ if (typeof window !== "undefined") {
           return;
         }
         if (await stopSession() && !hasUnsavedArchive()) await win.destroy();
-        else st({ panelOpen: true, error: "会话尚未保存，窗口保持打开；请重试保存。" });
+        else st({ panelOpen: true, error: t("会话尚未保存，窗口保持打开；请重试保存。") });
       } catch (e) {
-        st({ panelOpen: true, error: `无法关闭窗口：${errMsg(e)}` });
+        st({ panelOpen: true, error: t("无法关闭窗口：{0}", [errMsg(e)]) });
       } finally { closing = false; }
     });
     if (disposed) remove(); else removeCloseListener = remove;
-  }).catch((e) => st({ error: `无法注册关闭前保存：${errMsg(e)}` }));
+  }).catch((e) => st({ error: t("无法注册关闭前保存：{0}", [errMsg(e)]) }));
   import.meta.hot?.dispose(() => {
     disposed = true;
     window.removeEventListener("pagehide", pagehide);
@@ -317,7 +318,7 @@ function makeClient(myGen: number, root: string): Client {
         const label = a.label ?? "Not logged in";
         if (useAgent.getState().authNote !== label) {
           st({ authNote: label });
-          info(`agent 报告未登录（${label}）：${AUTH_HINT}。`);
+          info(t("agent 报告未登录（{0}）：{1}。", [label, authHint()]));
         }
       } else {
         st({ authNote: null });
@@ -329,7 +330,7 @@ function makeClient(myGen: number, root: string): Client {
         return Promise.resolve({ outcome: { outcome: "cancelled" } });
       }
       const ask: PermissionAsk = {
-        title: p.toolCall?.title ?? "工具调用",
+        title: p.toolCall?.title ?? t("工具调用"),
         options: p.options.map((o) => ({ optionId: o.optionId, name: o.name, kind: o.kind })),
       };
       const l = live;
@@ -379,7 +380,7 @@ export async function startSession(): Promise<void> {
   if (preset.id === "custom") {
     const argv = parseCommandLine(ui.customCmd);
     if (argv.length === 0) {
-      st({ status: "error", error: "请先填写自定义命令" });
+      st({ status: "error", error: t("请先填写自定义命令") });
       return;
     }
     [cmd, ...args] = argv as [string, ...string[]];
@@ -387,12 +388,12 @@ export async function startSession(): Promise<void> {
   }
   const root = useApp.getState().lib?.root;
   if (!root) {
-    st({ status: "error", error: "尚未选择文库" });
+    st({ status: "error", error: t("尚未选择文库") });
     return;
   }
   if (live) await stopSession();
   if (!await flushSessionArchive()) {
-    st({ error: "上一会话尚未保存，请重试保存后再启动。" });
+    st({ error: t("上一会话尚未保存，请重试保存后再启动。") });
     return;
   }
   if (useApp.getState().lib?.root !== root) return;
@@ -438,8 +439,8 @@ export async function startSession(): Promise<void> {
     contextSources: [],
     turnChanges: null,
   });
-  info(`启动 ${label}：${cmd} ${args.join(" ")}`.trim());
-  if (cmd === "npx") info("首次启动要经 npx 下载适配器，可能需要一两分钟；请稍等。");
+  info(t("启动 {0}：{1}", [label, `${cmd} ${args.join(" ")}`.trim()]));
+  if (cmd === "npx") info(t("首次启动要经 npx 下载适配器，可能需要一两分钟；请稍等。"));
 
   let proc: AgentProcessHandle;
   try {
@@ -513,8 +514,8 @@ export async function startSession(): Promise<void> {
     // Google 2026-06-18 停掉了 Gemini CLI 的个人 Google 账号登录（免费 / AI Pro / Ultra），只报一行英文错
     if (GEMINI_RETIRED.test(line) && !l.retiredNoted) {
       l.retiredNoted = true;
-      st({ error: GEMINI_RETIRED_HINT });
-      info(GEMINI_RETIRED_HINT);
+      st({ error: geminiRetiredHint() });
+      info(geminiRetiredHint());
     }
   });
   proc.onExit((code) => {
@@ -522,7 +523,7 @@ export async function startSession(): Promise<void> {
     flushPermissions(l);
     live = null;
     st((s) => ({ status: s.status === "error" ? "error" : "exited" }));
-    info(`agent 进程已退出${code !== null ? `（代码 ${code}）` : ""}。`);
+    info(code !== null ? t("agent 进程已退出（代码 {0}）。", [code]) : t("agent 进程已退出。"));
   });
 
   try {
@@ -533,7 +534,7 @@ export async function startSession(): Promise<void> {
         clientInfo: { name: "openfile", version: "0.1.0" },
       }),
       120_000,
-      "适配器 120s 无响应——首次启动要经 npx 下载适配器；检查网络是否可达，或展开诊断输出看 npm 卡在哪",
+      t("适配器 120s 无响应——首次启动要经 npx 下载适配器；检查网络是否可达，或展开诊断输出看 npm 卡在哪"),
     );
     if (stale()) return;
     const agentInfo = init.agentInfo as { name?: string; title?: string | null } | undefined;
@@ -550,7 +551,7 @@ export async function startSession(): Promise<void> {
     if (stale()) return;
     const msg = friendlyStartError(e, useAgent.getState().stderrTail);
     st({ status: "error", error: msg });
-    info(`启动失败：${msg}`);
+    info(t("启动失败：{0}", [msg]));
     void proc.kill();
   }
 }
@@ -566,9 +567,9 @@ async function openfileMcp(root: string): Promise<McpServerStdio[]> {
   try {
     const spec = await backend.agentMcpServer(root);
     if (spec) return [{ name: SESSION_MCP_NAME, command: spec.command, args: spec.args, env: [] }];
-    info("本会话没有 Openfile 工具：找不到 Node.js 22+。会话照常进行。");
+    info(t("本会话没有 Openfile 工具：找不到 Node.js 22+。会话照常进行。"));
   } catch (e) {
-    info(`本会话没有 Openfile 工具：${errMsg(e)}`);
+    info(t("本会话没有 Openfile 工具：{0}", [errMsg(e)]));
   }
   return [];
 }
@@ -586,7 +587,7 @@ async function turnBaseline(l: Live, turn: number): Promise<string | null> {
   try {
     return await snapshotOrLatest(turnLabel(turn, "前"));
   } catch (e) {
-    info(`第 ${turn} 轮没拍到轮前快照（${errMsg(e)}），这一轮的改动不会标出。`);
+    info(t("第 {0} 轮没拍到轮前快照（{1}），这一轮的改动不会标出。", [turn, errMsg(e)]));
     return null;
   }
 }
@@ -601,7 +602,7 @@ async function finishTurn(l: Live, turn: number, baseId: string, stale: () => bo
     if (stale() || l.turn !== turn) return;
     st({ turnChanges: { root: l.root, turn, baseId, headId, files } });
   } catch (e) {
-    if (!stale()) info(`第 ${turn} 轮的改动没能统计出来：${errMsg(e)}`);
+    if (!stale()) info(t("第 {0} 轮的改动没能统计出来：{1}", [turn, errMsg(e)]));
   }
 }
 
@@ -616,7 +617,7 @@ export async function undoTurn(): Promise<void> {
   st({ turnUndoing: true });
   try {
     const nowId = await snapshotOrLatest("撤回本轮前");
-    if (useApp.getState().lib?.root !== tc.root) throw new Error("文库已切换");
+    if (useApp.getState().lib?.root !== tc.root) throw new Error(t("文库已切换"));
     const touched = !nowId || nowId === tc.headId ? [] : (await backend.snapshotChanges(nowId, tc.headId)).map((f) => f.path);
     const plan = planTurnUndo(tc.files, touched);
     const failed: string[] = [];
@@ -624,14 +625,14 @@ export async function undoTurn(): Promise<void> {
     for (const p of plan.restore) await backend.restoreFile(tc.baseId, p).catch(fail(p));
     for (const p of plan.trash) await backend.trashEntry(p, tc.root).catch(fail(p));
     const done = plan.restore.length + plan.trash.length - failed.length;
-    const parts = [done > 0 || !failed.length ? `已撤回第 ${tc.turn} 轮：${done} 个文件回到轮前。` : `第 ${tc.turn} 轮没撤成。`];
-    if (plan.skipped.length) parts.push(`轮后又被改过、没动：${plan.skipped.join("、")}。`);
-    if (failed.length) parts.push(`没撤成：${failed.join("、")}。`);
+    const parts = [done > 0 || !failed.length ? t("已撤回第 {0} 轮：{1} 个文件回到轮前。", [tc.turn, done]) : t("第 {0} 轮没撤成。", [tc.turn])];
+    if (plan.skipped.length) parts.push(t("轮后又被改过、没动：{0}。", [plan.skipped.join(t("、"))]));
+    if (failed.length) parts.push(t("没撤成：{0}。", [failed.join(t("、"))]));
     info(parts.join(""));
     // 有没撤成的就留着卡片，可以处理后重试（已恢复的文件重试时会因「轮后又被改过」被跳过）
     if (!failed.length && useAgent.getState().turnChanges === tc) st({ turnChanges: null });
   } catch (e) {
-    info(`撤回失败：${errMsg(e)}`);
+    info(t("撤回失败：{0}", [errMsg(e)]));
   } finally {
     st({ turnUndoing: false });
   }
@@ -651,24 +652,24 @@ export async function undoTurnFile(rel: string): Promise<string | null> {
   let message: string;
   try {
     const nowId = await snapshotOrLatest("撤回本轮前");
-    if (useApp.getState().lib?.root !== tc.root) throw new Error("文库已切换");
+    if (useApp.getState().lib?.root !== tc.root) throw new Error(t("文库已切换"));
     const touched = !nowId || nowId === tc.headId ? [] : (await backend.snapshotChanges(nowId, tc.headId)).map((f) => f.path);
     const plan = planTurnUndo([file], touched);
     if (plan.restore.length) {
       await backend.restoreFile(tc.baseId, rel);
-      message = `已把 ${rel} 撤回到第 ${tc.turn} 轮之前。`;
+      message = t("已把 {0} 撤回到第 {1} 轮之前。", [rel, tc.turn]);
     } else if (plan.trash.length) {
       await backend.trashEntry(rel, tc.root);
-      message = `已把第 ${tc.turn} 轮新建的 ${rel} 移到废纸篓。`;
+      message = t("已把第 {0} 轮新建的 {1} 移到废纸篓。", [tc.turn, rel]);
     } else {
-      message = `${rel} 在第 ${tc.turn} 轮之后又被改过，没动。`;
+      message = t("{0} 在第 {1} 轮之后又被改过，没动。", [rel, tc.turn]);
     }
     if (!plan.skipped.length && useAgent.getState().turnChanges === tc) {
       const files = tc.files.filter((f) => f.path !== rel);
       st({ turnChanges: files.length ? { ...tc, files } : null });
     }
   } catch (e) {
-    message = `撤回失败：${errMsg(e)}`;
+    message = t("撤回失败：{0}", [errMsg(e)]);
   } finally {
     st({ turnUndoing: false });
   }
@@ -693,12 +694,12 @@ async function establishSession(l: Live, stale: () => boolean): Promise<void> {
           }
         : null,
     });
-    info(`会话已建立（${useAgent.getState().agentName ?? l.label}）。`);
+    info(t("会话已建立（{0}）。", [useAgent.getState().agentName ?? l.label]));
   } catch (e) {
     if (stale()) return;
     if (isAuthRequired(e)) {
       st({ status: "auth" });
-      info("agent 要求先登录。选择下方的登录方式，或先在终端完成登录再重启会话。");
+      info(t("agent 要求先登录。选择下方的登录方式，或先在终端完成登录再重启会话。"));
       return;
     }
     throw e;
@@ -717,7 +718,7 @@ export async function authenticate(methodId: string): Promise<void> {
   } catch (e) {
     if (stale()) return;
     st({ error: errMsg(e) });
-    info(`登录失败：${errMsg(e)}`);
+    info(t("登录失败：{0}", [errMsg(e)]));
   }
 }
 
@@ -759,19 +760,19 @@ export function sendPrompt(text: string): void {
     .then((r) => {
       if (stale()) return;
       st({ status: "ready" });
-      if (!r || r.stopReason === "cancelled") info("已取消这一轮。");
-      else if (r.stopReason === "refusal") info("agent 拒绝继续这一轮。");
-      else if (r.stopReason === "max_tokens") info("这一轮到达 token 上限。");
+      if (!r || r.stopReason === "cancelled") info(t("已取消这一轮。"));
+      else if (r.stopReason === "refusal") info(t("agent 拒绝继续这一轮。"));
+      else if (r.stopReason === "max_tokens") info(t("这一轮到达 token 上限。"));
     })
     .catch((e) => {
       if (stale()) return;
       flushPermissions(l);
       const authFail = /authentication required|not logged in|unauthori[sz]ed/i.test(errMsg(e));
-      const msg = authFail ? `${errMsg(e)}——${AUTH_HINT}` : errMsg(e);
+      const msg = authFail ? t("{0}——{1}", [errMsg(e), authHint()]) : errMsg(e);
       st((s) =>
         s.status === "exited" ? {} : { status: "error", error: msg },
       );
-      info(`这一轮失败：${msg}`);
+      info(t("这一轮失败：{0}", [msg]));
     });
 }
 
@@ -804,7 +805,7 @@ export function setSessionMode(modeId: string): void {
   st((s) => (s.modes ? { modes: { ...s.modes, currentModeId: modeId } } : {}));
   l.conn.setSessionMode({ sessionId: l.sessionId, modeId }).catch((e) => {
     if (live !== l) return;
-    info(`切换模式失败：${errMsg(e)}`);
+    info(t("切换模式失败：{0}", [errMsg(e)]));
   });
 }
 
@@ -814,9 +815,9 @@ export async function stopSession(): Promise<boolean> {
   genCounter++; // 旧回调全部作废
   if (l) flushPermissions(l);
   st({ status: "idle", permission: null });
-  if (l) info("会话已结束。");
+  if (l) info(t("会话已结束。"));
   const [, saved] = await Promise.all([l?.proc.kill().catch(() => undefined), flushSessionArchive()]);
-  if (!saved) st({ panelOpen: true, error: "会话尚未保存，请重试保存。" });
+  if (!saved) st({ panelOpen: true, error: t("会话尚未保存，请重试保存。") });
   return saved;
 }
 
@@ -825,7 +826,7 @@ export async function startSessionFromHistory(path: string, appData = false): Pr
   const root = useApp.getState().lib?.root;
   if (!root) return;
   try {
-    if (!await stopSession()) throw new Error("当前会话尚未保存，请重试保存后再载入历史。");
+    if (!await stopSession()) throw new Error(t("当前会话尚未保存，请重试保存后再载入历史。"));
     const historyContext = await readHistoryContext(backend, root, path, appData);
     if (useApp.getState().lib?.root !== root) return;
     st({ historyContext });

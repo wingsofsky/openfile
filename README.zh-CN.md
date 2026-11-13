@@ -34,6 +34,8 @@
 
 同一个文件有三种看法：**阅读**，选中文字只是选中，不弹任何东西；**审阅**，接受或拒绝标记、选中文字加批注、打字直接变成修改建议；**编辑**，显示原文直接改。
 
+![收起文库栏和会话面板的审阅模式：只剩文稿和审阅标记](docs/images/review-clean.webp)
+
 **各种格式都映射成 Markdown。** Word、PDF、HTML 都在原件旁边生成一份 Markdown 稿，和别的文件一样审，再转回你要的样子：
 
 ![Markdown、纯文本、Word、PDF、HTML 映射成 Markdown 审阅稿，再回到带修订的 Word 副本、PDF 笔记或改好的 HTML 报告](docs/images/formats.svg)
@@ -51,6 +53,33 @@
 ## 安装
 
 从 [Releases](https://github.com/wingsofsky/openfile/releases) 下载 Windows 或 macOS 的安装包，装好后选一个文件夹。安装包还没有签名，第一次启动要手动放行：Windows 在 SmartScreen 里点「更多信息 → 仍要运行」；macOS 15 及以后到「系统设置 → 隐私与安全性」里点「仍要打开」。更多见[桌面版指南](docs/guide/desktop.md)（英文）。
+
+> **在 Claude 桌面版里安装？** 让那里的 agent 运行安装器时，Windows 会把装好的文件重定向到 `%LOCALAPPDATA%\Packages\Claude_…\LocalCache`，而开始菜单快捷方式和卸载项指向 `%LOCALAPPDATA%\Openfile`，这个目录在 Claude 之外并不存在。请自己双击安装器，或者让 agent 在 Claude 之外启动它，比如在 PowerShell 里：
+>
+> ```powershell
+> Invoke-CimMethod Win32_Process -MethodName Create -Arguments @{ CommandLine = '"<路径>\Openfile_<版本>_x64-setup.exe" /S' }
+> ```
+
+### 自己打安装包
+
+要打出和发版流程一样的安装包，需要 Node 22.19 及以上、pnpm 和 Rust（stable，用 [rustup](https://rustup.rs) 装）。Windows 还需要 Microsoft C++ 生成工具（「使用 C++ 的桌面开发」）和 WebView2，Windows 10、11 已经自带 WebView2；macOS 需要 Xcode 命令行工具。
+
+```bash
+git clone https://github.com/wingsofsky/openfile.git && cd openfile
+pnpm install
+node scripts/fetch-sidecars.mjs     # 随包的 Node 和 Git，按 SHA-256 校验
+pnpm tauri build --config src-tauri/tauri.bundle.conf.json
+```
+
+安装包在 `src-tauri/target/release/bundle/` 下：Windows 是 `nsis/Openfile_<版本>_x64-setup.exe`（加 `/S` 静默装到当前用户），macOS 在 `dmg/`。Windows 第一次构建还会下载 NSIS。如果你的 shell 设了 `CI=1`，构建时改成 `CI=true`，因为 Tauri CLI 只认 `true` 或 `false`。
+
+也可以交给 agent。把这句话发给 Claude Code、Codex 或别的能在你电脑上跑命令的 agent：
+
+```text
+为这台电脑打 Openfile 的安装包并装上：按 https://github.com/wingsofsky/openfile 的 README 里「自己打安装包」一节做
+```
+
+### 在浏览器里试用
 
 不想安装，也可以在浏览器里跑（需要 Node 22.19 及以上和 pnpm）：
 

@@ -6,7 +6,9 @@ Overview: [README](../../README.md).
 
 ## Install
 
-Download from [Releases](https://github.com/wingsofsky/openfile/releases): an NSIS installer for Windows, a dmg for macOS (Apple Silicon and Intel). The installers are unsigned, so allow them on first launch: on Windows click "More info → Run anyway" in SmartScreen; on macOS 15 and later go to System Settings → Privacy & Security and click "Open Anyway". The Windows package has not been release-validated yet.
+Download from [Releases](https://github.com/wingsofsky/openfile/releases): an NSIS installer for Windows, a dmg for macOS (Apple Silicon and Intel). The installers are unsigned, so allow them on first launch: on Windows click "More info → Run anyway" in SmartScreen; on macOS 15 and later go to System Settings → Privacy & Security and click "Open Anyway". The Windows installer installs for the current user into `%LOCALAPPDATA%\Openfile` and needs no administrator rights; `/S` installs silently.
+
+If an agent runs the installer from inside the Claude desktop app, Windows redirects the installed files into `%LOCALAPPDATA%\Packages\Claude_…\LocalCache`, while the Start menu shortcut and the uninstall entry point to `%LOCALAPPDATA%\Openfile`, which then does not exist outside the Claude app. Run the installer yourself, or have the agent start it outside the app, as described in the [README](../../README.md#install).
 
 The installer bundles Node and git for the app's own use. To connect an external agent such as Claude Code over MCP, you still clone the repository; see the runtime guide.
 
@@ -17,7 +19,7 @@ pnpm install
 pnpm dev        # open http://localhost:1420 and enter the folder's absolute path
 ```
 
-Building the desktop app yourself needs Rust (plus Xcode command line tools on macOS): `pnpm tauri dev` or `pnpm tauri build`.
+Running the desktop app from source needs Rust (plus Xcode command line tools on macOS): `pnpm tauri dev`. To build an installer, follow [Build the installer yourself](../../README.md#build-the-installer-yourself): a plain `pnpm tauri build` leaves out the bundled Node and git, and the app then needs Node 22.19 or later on `PATH`.
 
 ## Open a library
 
@@ -57,10 +59,6 @@ Locally trusted agents can still write files directly. Review marks are not a ma
 **Sessions** in the status bar (`⌘J` / `Ctrl+J`) runs Claude Code, Codex and other agents in a side panel, with tool calls, permission requests and plans visible step by step. The session is connected to this library's Openfile MCP automatically. The first start downloads an adapter through npx and can take a minute or two; sign in to that CLI in a terminal first. One session at a time: **End** it before switching agents.
 
 The chat runs in the library folder, and every message carries the path of the file you have open, so the agent can read both without you adding anything; nothing extra is shown in the panel. User and assistant text is saved as Markdown: in `会话/内嵌/` (sessions/embedded) when the folder is a library, or in the app data directory when the folder has no `.openfile/` yet. **History** searches in-app chats and exported CLI chats together; open the original or start a new chat that quotes it. The History panel can also **export chats** from every CLI on this machine (Claude Code, Codex, Gemini CLI, Grok, Antigravity, Cursor) into one conversation archive in the Openfile home folder (`~/.openfile`, or `OPENFILE_HOME`): **Export this folder's chats** takes only the conversations that ran in the open folder, **Export all chats** takes every project. Each chat becomes Markdown under `会话/导入/<project>/` in the archive, with an index and likely secrets redacted. Nothing is written into the open folder; it is a plain parser, so no model is called and nothing goes online. **Open Openfile home** opens the archive as a library (in a new window in the desktop app), where the file tree, search and History work as usual. More options are in the [runtime guide](../../packages/runtime/README.md#conversation-archive).
-
-## Known issues
-
-- The Windows desktop package has not been release-validated.
 
 ## Privacy
 

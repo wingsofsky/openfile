@@ -2,6 +2,7 @@
  * 界面文案的最小国际化：
  *   - 键就是中文原文：`t("本机 agent")`。中文界面零成本（原样返回），英文从 en.ts 的字典查，查不到回退中文。
  *   - 带变量用位置占位：`t("剩 {0}%", [n])`；命名占位 `t("{n} 个任务", { n })`。
+ *   - 英文单复数写在 en.ts 的值里：`{0|file|files}` 在变量 0 等于 1 时取前一个词，否则取后一个（中文没有单复数，键里不写）。
  *   - 语言存 localStorage（openfile.locale），首次按浏览器语言；切换时 App 用 key={locale} 整棵重挂，组件不用订阅。
  * 不引入库；字典由 scripts/i18n-extract.mjs 从源码抽键、由译者（grok）填英文。
  * 注意：目录名（会话 / 内嵌 / 导入）、文件名和 CriticMarkup 标记是数据格式，不是文案，只翻译它们的显示名。
@@ -47,9 +48,10 @@ type Vars = ReadonlyArray<string | number> | Readonly<Record<string, string | nu
 
 function fill(s: string, vars?: Vars): string {
   if (!vars) return s;
-  return s.replace(/\{(\w+)\}/g, (m, k: string) => {
+  return s.replace(/\{(\w+)(?:\|([^|{}]*)\|([^|{}]*))?\}/g, (m, k: string, one?: string, many?: string) => {
     const v = Array.isArray(vars) ? (vars as ReadonlyArray<string | number>)[Number(k)] : (vars as Record<string, string | number>)[k];
-    return v === undefined || v === null ? m : String(v);
+    if (v === undefined || v === null) return m;
+    return one === undefined ? String(v) : Number(v) === 1 ? one : many!;
   });
 }
 

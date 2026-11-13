@@ -8,9 +8,9 @@
 
 Open a folder and read what your agents left in it: Markdown, HTML reports, Word, PDF, images and plain text. Review it the way you would review a colleague's draft, with suggestions and comments you accept or reject one by one, and change it together with the agent in a chat beside the document. Everything stays plain text in your folder.
 
-![Openfile in the Review view: a research draft with insertions, deletions and comments, and a Claude Code chat in the side panel that answered them](docs/images/review-and-chat.webp)
+![Openfile in the Review view: a research draft with insertions, deletions and comments, and a Claude Code chat in the side panel that answered them](docs/images/review-and-chat-en.webp)
 
-*A research draft in the Review view. A reviewer's insertions, deletions and comments are marked in the text; on the right, Claude Code was asked to answer them and wrote its replies and suggestions as marks too. The interface is shown in Chinese; it also runs in English.*
+*A research draft in the Review view. A reviewer's insertions, deletions and comments are marked in the text; on the right, Claude Code was asked to answer them and wrote its replies and suggestions as marks too. The interface also runs in Chinese.*
 
 ## What you can do
 
@@ -34,11 +34,13 @@ Open a folder and read what your agents left in it: Markdown, HTML reports, Word
 
 Three views of the same file: **Read** is for reading, and selecting text there does nothing but select; **Review** lets you accept or reject marks, comment on a selection, and type changes that become suggestions; **Edit** shows the source for direct editing.
 
+![The Review view with the library sidebar and the chat panel hidden: only the draft and its review marks](docs/images/review-clean-en.webp)
+
 **Every format becomes Markdown.** Word, PDF and HTML are each mapped to a Markdown draft next to the original, reviewed like any other file, and turned back into what you need:
 
 ![Markdown, text, Word, PDF and HTML are mapped to a Markdown review draft, and come back as a Word copy with tracked changes, PDF notes or an updated HTML report](docs/images/formats.svg)
 
-![A Word review draft: tracked insertions, deletions and a comment, with Export Word revision in the toolbar](docs/images/word-draft.webp)
+![A Word review draft: tracked insertions, deletions and a comment, with Export Word revision in the toolbar](docs/images/word-draft-en.webp)
 
 **Two ways to work with an agent**, both writing the same plain text:
 
@@ -46,11 +48,38 @@ Three views of the same file: **Read** is for reading, and selecting text there 
 
 After a chat turn, Openfile shows what that turn changed, block by block:
 
-![Reviewing one chat turn: three changed blocks, each with Keep and Undo, and the whole turn can be undone from the chat panel](docs/images/turn-changes.webp)
+![Reviewing one chat turn: three changed blocks, each with Keep and Undo, and the whole turn can be undone from the chat panel](docs/images/turn-changes-en.webp)
 
 ## Install
 
 Download the installer for Windows or macOS from [Releases](https://github.com/wingsofsky/openfile/releases), then choose a folder. The installers are not signed yet, so allow the first launch by hand: on Windows, click "More info → Run anyway" in SmartScreen; on macOS 15 and later, go to System Settings → Privacy & Security and click "Open Anyway". More in the [desktop guide](docs/guide/desktop.md).
+
+> **Installing from inside the Claude desktop app?** If an agent there runs the installer, Windows redirects the installed files into `%LOCALAPPDATA%\Packages\Claude_…\LocalCache`, while the Start menu shortcut and the uninstall entry point to `%LOCALAPPDATA%\Openfile`, which then does not exist outside the Claude app. Double-click the installer yourself, or have the agent start it outside the app, for example in PowerShell:
+>
+> ```powershell
+> Invoke-CimMethod Win32_Process -MethodName Create -Arguments @{ CommandLine = '"<path>\Openfile_<version>_x64-setup.exe" /S' }
+> ```
+
+### Build the installer yourself
+
+To build the same installer the release workflow makes, you need Node 22.19 or later, pnpm and Rust (stable, through [rustup](https://rustup.rs)). On Windows you also need the Microsoft C++ Build Tools ("Desktop development with C++") and WebView2, which Windows 10 and 11 already include; on macOS, the Xcode command line tools.
+
+```bash
+git clone https://github.com/wingsofsky/openfile.git && cd openfile
+pnpm install
+node scripts/fetch-sidecars.mjs     # the bundled Node and Git, checked against their SHA-256
+pnpm tauri build --config src-tauri/tauri.bundle.conf.json
+```
+
+The installer lands in `src-tauri/target/release/bundle/`: `nsis/Openfile_<version>_x64-setup.exe` on Windows (`/S` installs silently for the current user), `dmg/` on macOS. The first Windows build also downloads NSIS. If your shell sets `CI=1`, run the build with `CI=true`, because the Tauri CLI accepts only `true` or `false`.
+
+Or let your agent do it. Send this to Claude Code, Codex or another agent that can run commands on your machine:
+
+```text
+Build the Openfile installer for this machine and install it: follow "Build the installer yourself" in the README of https://github.com/wingsofsky/openfile
+```
+
+### Try it in a browser
 
 To try it without installing, run it in a browser (Node 22.19 or later and pnpm):
 

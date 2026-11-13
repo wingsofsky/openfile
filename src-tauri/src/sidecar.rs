@@ -55,7 +55,7 @@ pub(crate) fn node_binary() -> Result<PathBuf, String> {
             return Ok(bundled);
         }
     }
-    resolve_cmd("node", login_env()).ok_or_else(|| "找不到 Node.js（需要 22.18 以上）".into())
+    resolve_cmd("node", login_env()).ok_or_else(|| "找不到 Node.js（需要 22.19 以上）".into())
 }
 
 /// 安装包自带的 git（dugite-native，快照引擎）所在目录；没带就由运行时用 PATH 上的 git。

@@ -3,7 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { execFileSync, spawn } from "node:child_process";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { killProcessTree, parseCmdShim, resolveSpawnCommand } from "../packages/runtime/src/lib/spawn-command.mjs";
 
 const W = path.win32;
@@ -177,5 +177,29 @@ describe("resolveSpawnCommand：Windows 上不经 shell 也能起 npx / .cmd 垫
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
     }
+  });
+});
+
+describe("killProcessTree", () => {
+  it("没起来或已退出的子进程不发信号（POSIX 上 Node 22 会把它变成整个进程组的 SIGTERM）", () => {
+    for (const platform of ["darwin", "linux"]) {
+      const notStarted = { pid: undefined, exitCode: null, signalCode: null, kill: vi.fn() };
+      const exited = { pid: 4242, exitCode: 0, signalCode: null, kill: vi.fn() };
+      const killed = { pid: 4243, exitCode: null, signalCode: "SIGTERM", kill: vi.fn() };
+      const running = { pid: 4244, exitCode: null, signalCode: null, kill: vi.fn() };
+      for (const p of [notStarted, exited, killed, running]) killProcessTree(p, { platform });
+      expect(notStarted.kill).not.toHaveBeenCalled();
+      expect(exited.kill).not.toHaveBeenCalled();
+      expect(killed.kill).not.toHaveBeenCalled();
+      expect(running.kill).toHaveBeenCalledOnce();
+    }
+  });
+
+  it("真的起不来的命令：kill 之后本进程还活着", async () => {
+    const child = spawn("of-no-such-command-xyz", [], { stdio: "ignore" });
+    const failed = new Promise((resolve) => child.on("error", resolve));
+    killProcessTree(child);
+    await failed;
+    expect(child.pid).toBeUndefined();
   });
 });
