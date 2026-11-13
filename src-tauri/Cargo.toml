@@ -1,7 +1,7 @@
 [package]
 name = "openfile"
 version = "0.1.0"
-description = "Openfile — a multi-format file reader for working with multiple agents"
+description = "Openfile — a multi-format reader for reviewing with your agents"
 authors = ["wingsofsky"]
 license = "Apache-2.0"
 edition = "2021"

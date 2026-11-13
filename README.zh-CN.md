@@ -1,12 +1,12 @@
 # Openfile
 
-**与多 agent 协作、支持多格式文件的阅读器，内置审阅 / 编辑模式。**
+**和 agent 一起审稿的多格式阅读器：你改、批注、提问，agent 修改、回答。**
 
 [![CI](https://github.com/wingsofsky/openfile/actions/workflows/ci.yml/badge.svg)](https://github.com/wingsofsky/openfile/actions/workflows/ci.yml)
 
 [English](README.md) · **简体中文**
 
-打开一个文件夹，读 agent 留在里面的东西：Markdown、HTML 报告、Word、PDF、图片和纯文本。像审同事的稿子一样审它：修改建议和批注一条一条接受或拒绝；也可以在文档旁边的对话里让 agent 一起改。所有东西都以纯文本留在你的文件夹里。
+打开一个文件夹，读 agent 留在里面的东西：Markdown、HTML 报告、Word、PDF、图片和纯文本。像审同事的稿子一样在上面改：直接改正文，在要说的地方写批注、提问题。然后交给 agent：在文档旁边的侧栏里说，或者复制现成的提示词给任何 agent，agent 就会修改文档、回答你。它改的每一处都可以保留或撤回，一处一处来，或者整轮来。所有东西都以纯文本留在你的文件夹里。
 
 ![审阅模式下的 Openfile：一份调研稿里有插入、删除和批注，右栏是回应这些批注的 Claude Code 对话](docs/images/review-and-chat.webp)
 
@@ -49,6 +49,14 @@
 一轮对话结束后，Openfile 按块列出这一轮改了什么：
 
 ![审阅一轮对话的改动：三处改动各有「保留」「撤回」，对话面板里可以整轮撤回](docs/images/turn-changes.webp)
+
+## 它会对你的文件夹做什么
+
+- **审阅会改文件本身。** 接受或拒绝标记、在审阅模式里打字，改的都是这个 Markdown 文件（你打的字以修订标记存进正文）。先在副本上试。
+- **审阅稿放在原件旁边。** Word、PDF、HTML 原件从不修改：Openfile 在旁边写 `名字.docx.review.md`、`名字.pdf.md` 或 `名字.html.review.md`，导出的 Word 叫 `名字.reviewed.docx`；已有的审阅稿和导出都不会被覆盖。
+- **快照和对话存在文件夹外面。** 文件变动 45 秒后，快照写进 Openfile 应用数据里的隐藏 git 仓库，你自己的 `.git` 不动。侧栏对话也存在那里；只有文件夹里已经有 `.openfile/` 目录时，才存进文件夹的 `会话/内嵌/`。Openfile 自己不会建 `.openfile/`。
+- **删除只进废纸篓。** 在文件树里删的文件进系统废纸篓。
+- **侧栏里的 agent 能直接写文件。** 它在这个文件夹里、用你自己的登录运行，按你在面板里选的权限模式行事，还会接上 Openfile 的 MCP 工具。每一轮前后都有快照，改了什么看得到，也能整轮撤回。
 
 ## 安装
 

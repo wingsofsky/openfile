@@ -85,6 +85,6 @@
     "vite": "^7.0.4",
     "vitest": "^4.1.11"
   },
-  "description": "Openfile — a multi-format file reader for working with multiple agents",
+  "description": "Openfile — a multi-format reader for reviewing with your agents",
   "license": "Apache-2.0"
 }

@@ -1,12 +1,12 @@
 # Openfile
 
-**A multi-format file reader for working with multiple agents, with built-in Review and Edit modes.**
+**A multi-format reader for reviewing with your agents: you edit, comment and ask; they revise and answer.**
 
 [![CI](https://github.com/wingsofsky/openfile/actions/workflows/ci.yml/badge.svg)](https://github.com/wingsofsky/openfile/actions/workflows/ci.yml)
 
 **English** · [简体中文](README.zh-CN.md)
 
-Open a folder and read what your agents left in it: Markdown, HTML reports, Word, PDF, images and plain text. Review it the way you would review a colleague's draft, with suggestions and comments you accept or reject one by one, and change it together with the agent in a chat beside the document. Everything stays plain text in your folder.
+Open a folder and read what your agents left in it: Markdown, HTML reports, Word, PDF, images and plain text. Mark it up the way you would a colleague's draft: edit the text, comment and ask questions where they apply. Then hand it to an agent, in the chat beside the document or by copying a ready-made prompt, and the agent revises the document and answers you. Keep or undo each change it made, one at a time or a whole turn at once. Everything stays plain text in your folder.
 
 ![Openfile in the Review view: a research draft with insertions, deletions and comments, and a Claude Code chat in the side panel that answered them](docs/images/review-and-chat-en.webp)
 
@@ -49,6 +49,14 @@ Three views of the same file: **Read** is for reading, and selecting text there 
 After a chat turn, Openfile shows what that turn changed, block by block:
 
 ![Reviewing one chat turn: three changed blocks, each with Keep and Undo, and the whole turn can be undone from the chat panel](docs/images/turn-changes-en.webp)
+
+## What it does to your folder
+
+- **Review edits the file.** Accepting or rejecting a mark, and typing in the Review view, change the Markdown file itself (what you type is saved as tracked changes in the text). Try it on a copy first.
+- **Drafts sit next to the originals.** Word, PDF and HTML files are never modified: Openfile writes `name.docx.review.md`, `name.pdf.md` or `name.html.review.md` next to the original, and a Word export as `name.reviewed.docx`. Existing drafts and exports are never overwritten.
+- **Snapshots and chats live outside the folder.** Snapshots go into a hidden git repository in Openfile's app data 45 seconds after files change; your own `.git` is never touched. In-app chats are saved there too, unless the folder already has a `.openfile/` directory, in which case they go to `会话/内嵌/` in the folder. Openfile does not create `.openfile/` itself.
+- **Deleting moves to the Trash.** Files deleted from the file tree go to the system Trash.
+- **Agents in the side panel can write files directly.** They run in the folder on your own sign-in, under the permission mode you pick in the panel, and also get Openfile's MCP tools. Every turn is bracketed by snapshots, so you can see what it changed and roll it back.
 
 ## Install
 
