@@ -1,0 +1,19 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "workspaces": {
+    ".": {
+      "entry": ["scripts/*.mjs", "tests/**/*.{ts,tsx,mjs}", "src/**/*.test.{ts,tsx}"],
+      "project": ["src/**/*.{ts,tsx}", "scripts/**/*.mjs", "tests/**/*.{ts,tsx,mjs}"],
+      "ignoreDependencies": ["tailwindcss"]
+    },
+    "packages/runtime": {
+      "entry": ["src/cli.ts", "scripts/*.mjs"],
+      "project": ["src/**/*.{ts,mjs}", "scripts/*.mjs"],
+      "ignoreDependencies": ["chardetng-wasm"]
+    },
+    "packages/protocol": {
+      "entry": ["src/**/*.test.ts"],
+      "project": ["src/**/*.ts"]
+    }
+  }
+}

@@ -1,0 +1,120 @@
+# Openfile
+
+**A reader for the files AI agents write, built to review them with the agent.**
+
+[![CI](https://github.com/wingsofsky/openfile/actions/workflows/ci.yml/badge.svg)](https://github.com/wingsofsky/openfile/actions/workflows/ci.yml)
+
+**English** · [简体中文](README.zh-CN.md)
+
+Open a folder and read what your agents left in it: Markdown, HTML reports, Word, PDF, images and plain text. Review it the way you would review a colleague's draft, with suggestions and comments you accept or reject one by one, and change it together with the agent in a chat beside the document. Everything stays plain text in your folder.
+
+![Openfile in the Review view: a research draft with insertions, deletions and comments, and a Claude Code chat in the side panel that answered them](docs/images/review-and-chat.webp)
+
+*A research draft in the Review view. A reviewer's insertions, deletions and comments are marked in the text; on the right, Claude Code was asked to answer them and wrote its replies and suggestions as marks too. The interface is shown in Chinese; it also runs in English.*
+
+## What you can do
+
+- **Read everything in a folder.** Markdown typeset for long reading with an outline, HTML reports rendered in a sandbox, Word documents as they print, PDF, images, and text in any common encoding. Quick open stays fast on folders with 50,000 files, and open documents reload when an agent changes them on disk.
+- **Review with suggestions and comments.** Insertions, deletions, replacements and comments are [CriticMarkup](https://github.com/CriticMarkup/CriticMarkup-toolkit) marks in the text, each signed by its author. Accept or reject them one at a time or all at once; what you type in the Review view becomes a suggestion too.
+- **Edit directly.** The Edit view shows the Markdown source, marks included, and edits plain text files the same way.
+- **Bring Word, PDF and HTML into the same review.** A Word document becomes a Markdown draft you review, then exports as a Word copy with native tracked changes and comments. A PDF becomes reading notes to highlight and comment on, with links back to each page. An HTML report becomes a draft whose changes the agent applies back to the report. Originals are never overwritten.
+- **Chat with an agent beside the document.** Claude Code, Codex, Gemini CLI, Grok or Antigravity runs in the side panel on your own sign-in. It sees the file you have open, and after each turn Openfile marks what changed, so you keep or roll back each block, or the whole turn.
+- **Let your desktop agent work in it.** An agent with a browser pane, such as Claude Code in the desktop app, can open Openfile there and edit or comment while you watch the same view.
+- **Connect any agent over MCP.** Thirteen tools let Claude Code, Codex or another agent read and search the folder, write its changes as suggestions and compare snapshots.
+- **Go back in time.** Openfile snapshots the folder as it changes. The timeline shows word-level differences and restores one file or the whole folder. Snapshots live in Openfile's own data folder; your `.git` is never touched.
+- **Keep your past chats.** Export conversations from the AI CLIs on your machine (Claude Code, Codex, Gemini CLI, Grok, Antigravity, Cursor) as Markdown, with likely secrets redacted, and search them.
+
+## How it works
+
+**Review marks are plain text.** Each mark carries its author, so a human reviewer's marks and an agent's are told apart, and any agent, editor or `cat` can read them:
+
+```text
+{++@claude: added text++}   {--@lin: removed text--}   {~~old~>new~~}   {>>@lin: why not CRDT?<<}
+```
+
+Three views of the same file: **Read** is for reading, and selecting text there does nothing but select; **Review** lets you accept or reject marks, comment on a selection, and type changes that become suggestions; **Edit** shows the source for direct editing.
+
+**Every format becomes Markdown.** Word, PDF and HTML are each mapped to a Markdown draft next to the original, reviewed like any other file, and turned back into what you need:
+
+![Markdown, text, Word, PDF and HTML are mapped to a Markdown review draft, and come back as a Word copy with tracked changes, PDF notes or an updated HTML report](docs/images/formats.svg)
+
+![A Word review draft: tracked insertions, deletions and a comment, with Export Word revision in the toolbar](docs/images/word-draft.webp)
+
+**Two ways to work with an agent**, both writing the same plain text:
+
+![Two ways to change a document with an agent: chat in the side panel, or let your desktop agent open Openfile in its browser pane](docs/images/agents.svg)
+
+After a chat turn, Openfile shows what that turn changed, block by block:
+
+![Reviewing one chat turn: three changed blocks, each with Keep and Undo, and the whole turn can be undone from the chat panel](docs/images/turn-changes.webp)
+
+## Install
+
+Download the installer for Windows or macOS from [Releases](https://github.com/wingsofsky/openfile/releases), then choose a folder. The installers are not signed yet, so allow the first launch by hand: on Windows, click "More info → Run anyway" in SmartScreen; on macOS 15 and later, go to System Settings → Privacy & Security and click "Open Anyway". More in the [desktop guide](docs/guide/desktop.md).
+
+To try it without installing, run it in a browser (Node 22.19 or later and pnpm):
+
+```bash
+git clone https://github.com/wingsofsky/openfile.git && cd openfile && pnpm install
+pnpm dev        # http://localhost:1420
+```
+
+The side-panel chat starts each agent through the [Agent Client Protocol](https://agentclientprotocol.com) on your own sign-in: sign in to the agent's CLI first (for example `claude login`). Openfile needs no API key.
+
+## Let your desktop agent open it
+
+Send this to Claude Code in the desktop app, or another agent with a browser pane:
+
+```text
+Open the folder <path> in Openfile in your browser pane: follow docs/guide/agent-browser.md in https://github.com/wingsofsky/openfile
+```
+
+The agent starts Openfile on that folder in its own browser pane. It can edit files, leave suggestions as review marks or use the interface, and you review in the same view. Details: [Open Openfile in your agent's browser](docs/guide/agent-browser.md).
+
+## Connect an agent over MCP
+
+Register the MCP server with your agent, pointing it at the folder you want it to work in:
+
+```bash
+claude mcp add openfile -- node <openfile-repo>/scripts/openfile-mcp.mjs --root <folder>
+```
+
+The agent can then read and search the folder, write its changes as suggestions you review in Openfile, and take and compare snapshots. Tools, options and the conversation export command: [Openfile runtime](packages/runtime/README.md) and [MCP tool groups](docs/guide/mcp-tools.md).
+
+## Design principles
+
+- **Files are the protocol.** Suggestions are CriticMarkup in the text; Word, PDF and HTML drafts are Markdown files next to their originals. An agent without any Openfile integration can read and write the same files.
+- **People decide.** Agent changes can arrive as suggestions, and every chat turn can be rolled back. Snapshots help you look back; they are not a permission boundary, since an agent running on your machine can still write files directly.
+- **Your `.git` stays yours.** Openfile never touches your repository; snapshots and settings live in its own data folder.
+
+## Privacy and security
+
+File access goes through one checked path: absolute paths, `..`, NUL and symlink escapes are rejected. This is not a process sandbox: agents you start run with your user's permissions. Reading is local, and there is no telemetry; starting an agent goes online through that agent. Browser mode listens on localhost only. Check snapshots and drafts for personal information before sharing a folder. See [SECURITY.md](SECURITY.md).
+
+## Build from source
+
+```bash
+pnpm install
+pnpm dev                # browser mode, http://localhost:1420
+pnpm tauri dev          # desktop app (needs Rust)
+```
+
+```bash
+pnpm test && pnpm typecheck
+pnpm e2e                # file bridge: real Vite, a temporary folder, path attacks
+pnpm e2e:mcp            # MCP server: path attacks, review, snapshots, tool groups
+pnpm e2e:acp            # side-panel chat transport
+cd src-tauri && cargo test
+```
+
+Code layout: `packages/protocol` (plain-text formats, zero dependencies), `packages/runtime` (the local runtime and MCP server), `src` and `src-tauri` (the interface and the native shell). See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## License
+
+Apache-2.0, see [LICENSE](LICENSE).
+
+Installers also include third-party components: the official Node.js (MIT), Git built by dugite-native (GPL-2.0, invoked as a separate program; corresponding source is attached to each release), and the npm packages and Rust crates compiled into the interface, runtime and desktop shell. Names, versions, licenses and full texts are in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md), also shipped in the installer under `resources/licenses/`.
+
+---
+
+*Built with Tauri 2 · ProseMirror · CodeMirror 6 · Source Han Serif + Source Serif 4*

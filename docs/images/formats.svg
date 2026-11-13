@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 400" width="880" height="400" role="img" aria-label="Markdown, text, Word, PDF and HTML files are mapped to a Markdown review draft with CriticMarkup marks; the result goes back as a Word copy with tracked changes, PDF notes, or an HTML report the agent updates, and originals are never overwritten">
+  <style>
+    .panel { fill: #f6f8fa; stroke: #d1d9e0; } .chip { fill: #ffffff; stroke: #d1d9e0; }
+    .ink { fill: #1f2328; } .muted { fill: #59636e; } .accent { fill: #bc4c00; }
+    .ins { fill: #1a7f37; } .del { fill: #cf222e; } .cmt { fill: #8250df; }
+    .line { stroke: #59636e; fill: none; } .arrowhead { fill: #59636e; }
+    .sans { font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace; }
+    @media (prefers-color-scheme: dark) {
+      .panel { fill: #161b22; stroke: #3d444d; } .chip { fill: #0d1117; stroke: #3d444d; }
+      .ink { fill: #e6edf3; } .muted { fill: #9198a1; } .accent { fill: #f0883e; }
+      .ins { fill: #3fb950; } .del { fill: #f85149; } .cmt { fill: #bc8cff; }
+      .line { stroke: #9198a1; } .arrowhead { fill: #9198a1; }
+    }
+  </style>
+
+  <!-- inputs -->
+  <text class="ink sans" x="1" y="22" font-size="15" font-weight="600">Your files</text>
+  <g class="sans">
+    <rect class="chip" x="1" y="40" width="226" height="60" rx="8"/>
+    <text class="ink" x="16" y="65" font-size="14">Markdown, text</text>
+    <text class="muted" x="16" y="85" font-size="12.5">reviewed and edited in place</text>
+    <rect class="chip" x="1" y="112" width="226" height="60" rx="8"/>
+    <text class="ink" x="16" y="137" font-size="14">Word .docx</text>
+    <text class="muted" x="16" y="157" font-size="12.5">shown as it prints</text>
+    <rect class="chip" x="1" y="184" width="226" height="60" rx="8"/>
+    <text class="ink" x="16" y="209" font-size="14">PDF</text>
+    <text class="muted" x="16" y="229" font-size="12.5">text layer, page by page</text>
+    <rect class="chip" x="1" y="256" width="226" height="60" rx="8"/>
+    <text class="ink" x="16" y="281" font-size="14">HTML report</text>
+    <text class="muted" x="16" y="301" font-size="12.5">rendered in a sandbox</text>
+  </g>
+
+  <!-- arrow in -->
+  <path class="line" d="M 228 178 L 274 178" stroke-width="1.5"/>
+  <path class="arrowhead" d="M 282 178 L 272 172 L 272 184 Z"/>
+  <text class="accent sans" x="255" y="168" font-size="12" text-anchor="middle">① map</text>
+
+  <!-- review draft -->
+  <rect class="panel" x="288" y="40" width="300" height="276" rx="10"/>
+  <text class="ink sans" x="306" y="70" font-size="15" font-weight="600">A Markdown review draft</text>
+  <text class="muted sans" x="306" y="90" font-size="12.5">suggestions are marks in the text,</text>
+  <text class="muted sans" x="306" y="106" font-size="12.5">signed by author, accepted one by one</text>
+  <g class="mono" font-size="13">
+    <text class="ins" x="306" y="144">{++@claude: added++}</text>
+    <text class="del" x="306" y="172">{--@lin: removed--}</text>
+    <text class="accent" x="306" y="200">{~~old~&gt;new~~}</text>
+    <text class="cmt" x="306" y="228">{&gt;&gt;@lin: why not CRDT?&lt;&lt;}</text>
+  </g>
+  <text class="muted sans" x="306" y="268" font-size="12.5">still plain text: cat, grep, diff</text>
+  <text class="muted sans" x="306" y="286" font-size="12.5">and any agent can read and write it</text>
+
+  <!-- arrow out -->
+  <path class="line" d="M 589 178 L 634 178" stroke-width="1.5"/>
+  <path class="arrowhead" d="M 642 178 L 632 172 L 632 184 Z"/>
+  <text class="accent sans" x="615" y="168" font-size="12" text-anchor="middle">② back</text>
+
+  <!-- outputs -->
+  <text class="ink sans" x="648" y="22" font-size="15" font-weight="600">What comes back</text>
+  <g class="sans">
+    <rect class="chip" x="648" y="40" width="231" height="76" rx="8"/>
+    <text class="ink" x="663" y="65" font-size="14">Word</text>
+    <text class="muted" x="663" y="85" font-size="12.5">a copy with native tracked</text>
+    <text class="muted" x="663" y="101" font-size="12.5">changes and comments</text>
+    <rect class="chip" x="648" y="128" width="231" height="76" rx="8"/>
+    <text class="ink" x="663" y="153" font-size="14">PDF</text>
+    <text class="muted" x="663" y="173" font-size="12.5">reading notes with highlights</text>
+    <text class="muted" x="663" y="189" font-size="12.5">and comments, beside the PDF</text>
+    <rect class="chip" x="648" y="216" width="231" height="76" rx="8"/>
+    <text class="ink" x="663" y="241" font-size="14">HTML</text>
+    <text class="muted" x="663" y="261" font-size="12.5">the agent applies the review</text>
+    <text class="muted" x="663" y="277" font-size="12.5">to the report</text>
+  </g>
+
+  <text class="accent sans" x="440" y="370" font-size="13" text-anchor="middle">Originals are never overwritten: drafts and exports are new files next to them.</text>
+</svg>

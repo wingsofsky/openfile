@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "searchPath": [
+    { "os": ["darwin", "linux"], "path": "/opt/homebrew/bin" },
+    { "os": ["darwin", "linux"], "path": "/usr/local/bin" },
+    { "os": ["darwin", "linux"], "path": "/opt/local/bin" },
+    { "os": ["darwin", "linux"], "path": "~/.local/bin" },
+    { "os": ["darwin", "linux"], "path": "~/.cargo/bin" },
+    { "os": ["darwin", "linux"], "path": "~/.bun/bin" }
+  ],
+  "executors": [
+    {
+      "id": "codex",
+      "label": "Codex（GPT）",
+      "bin": {
+        "env": "OPENFILE_CODEX_BIN",
+        "names": ["codex"],
+        "discover": [
+          { "os": ["win32"], "path": "%LOCALAPPDATA%/OpenAI/Codex/bin", "pick": "newest", "then": "codex.exe" },
+          { "os": ["win32"], "path": "~/.codex/.sandbox-bin/codex.exe" },
+          { "os": ["darwin", "linux"], "path": "~/.local/bin/codex" }
+        ]
+      },
+      "acp": {
+        "command": "npx",
+        "args": ["--yes", "@agentclientprotocol/codex-acp"],
+        "note": "首次启动需下载适配器；需先在终端运行 codex login 登录"
+      }
+    },
+    {
+      "id": "agy",
+      "label": "Antigravity CLI（Gemini）",
+      "bin": {
+        "env": "OPENFILE_AGY_BIN",
+        "names": ["agy"],
+        "discover": [{ "os": ["win32"], "path": "%LOCALAPPDATA%/agy/bin/agy.exe" }, { "path": "~/.local/bin/agy" }]
+      },
+      "acp": {
+        "command": "agy-acp-server",
+        "args": [],
+        "note": "Google 官方的 Antigravity ACP server（接替 Gemini CLI，用 Google 账号 / AI Pro / Ultra 订阅）。需把 ACP 注册表 antigravity-acp 的 agy_acp_server 放到 PATH 上并命名为 agy-acp-server；首次使用在面板里点「Log in with Google」"
+      }
+    },
+    {
+      "id": "grok",
+      "label": "Grok Build（xAI）",
+      "bin": {
+        "env": "OPENFILE_GROK_BIN",
+        "names": ["grok"],
+        "discover": [
+          { "os": ["win32"], "path": "%LOCALAPPDATA%/grok/bin/grok.exe" },
+          { "os": ["win32"], "path": "%LOCALAPPDATA%/Programs/grok/grok.exe" },
+          { "path": "~/.grok/bin/grok{exe}" },
+          { "path": "~/.local/bin/grok" }
+        ]
+      },
+      "acp": { "command": "grok", "args": ["agent", "stdio"], "note": "需已安装 grok CLI 并登录；grok agent stdio 就是 ACP" }
+    },
+    {
+      "id": "claude",
+      "label": "Claude Code",
+      "bin": {
+        "env": "OPENFILE_CLAUDE_BIN",
+        "names": ["claude"],
+        "discover": [
+          { "os": ["win32"], "path": "%APPDATA%/Claude/claude-code", "pick": "claude-version", "then": "claude.exe" },
+          {
+            "os": ["darwin"],
+            "path": "~/Library/Application Support/Claude/claude-code",
+            "pick": "claude-version",
+            "then": "claude.app/Contents/MacOS/claude"
+          },
+          { "path": "~/.local/bin/claude" },
+          { "path": "~/.local/bin/claude.exe" }
+        ]
+      },
+      "acp": {
+        "command": "npx",
+        "args": ["--yes", "@agentclientprotocol/claude-agent-acp"],
+        "note": "首次启动需下载适配器；需先在终端运行 claude login 登录"
+      }
+    },
+    {
+      "id": "gemini",
+      "label": "Gemini CLI",
+      "acp": {
+        "command": "gemini",
+        "args": ["--acp"],
+        "note": "注意：Google 已于 2026-06-18 停掉 Gemini CLI 的个人 Google 账号登录（免费 / AI Pro / Ultra），只剩 API key（GEMINI_API_KEY）与 Vertex AI 可用；用 Google 账号订阅的请改走 Antigravity"
+      }
+    }
+  ]
+}

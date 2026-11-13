@@ -1,0 +1,22 @@
+[
+  { "path": ".env", "sensitive": true },
+  { "path": "docs/.env.local", "sensitive": true },
+  { "path": "DOCS/AUTH.JSON", "sensitive": true },
+  { "path": "keys/secret.pem", "sensitive": true },
+  { "path": "credentials/nested.txt", "sensitive": true },
+  { "path": "client_secret_demo.json", "sensitive": true },
+  { "path": ".aws/config", "sensitive": true },
+  { "path": ".openfile/state.json", "sensitive": true },
+  { "path": ".openfile/local.pending.json", "sensitive": true },
+  { "path": ".OPENFILE/Settings.JSON", "sensitive": true },
+  { "path": ".openfile\\auth-state.json", "sensitive": true },
+  { "path": "./.openfile/settings.json", "sensitive": true },
+  { "path": ".openfile/notes/a.md", "sensitive": false },
+  { "path": ".openfile/notes/a.json", "sensitive": false },
+  { "path": "记忆/agent-经验.md", "sensitive": false },
+  { "path": "CLAUDE.md", "sensitive": false },
+  { "path": "docs/authentication.md", "sensitive": false },
+  { "path": "docs/settings.json", "sensitive": false },
+  { "path": "docs/credentials-guide.md", "sensitive": true },
+  { "path": "docs/private.pem.txt", "sensitive": false }
+]

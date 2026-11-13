@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  frontend:
+    strategy:
+      # Windows and macOS are both release platforms: report every leg instead of cancelling on the first failure.
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+        node: [22, 24]
+    runs-on: ${{ matrix.os }}
+    steps:
+      # Before checkout (actions/checkout honours it): keep the committed LF bytes that fixtures and parsers expect.
+      - name: Keep LF line endings
+        if: runner.os == 'Windows'
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@v4
+      # pnpm version comes from package.json#packageManager; a `version` input here would conflict with it.
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      # knip (unused files and exports) + dpdm (import cycles): dead code and cycles fail the build
+      - run: pnpm lint:deps
+      - run: pnpm test
+      - run: pnpm build
+      - name: E2E (dev runtime black box)
+        run: pnpm e2e
+      - name: E2E (MCP server)
+        run: pnpm e2e:mcp
+      - name: E2E (ACP transport)
+        run: pnpm e2e:acp
+      - name: E2E (runtime package installed outside the repo)
+        run: pnpm e2e:pack
+
+  rust:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Keep LF line endings
+        if: runner.os == 'Windows'
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@v4
+      # build.rs bundles the runtime (the desktop sidecar) with esbuild as a Tauri resource, so Node deps come first.
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      - name: cargo test
+        working-directory: src-tauri
+        run: cargo test
+      - name: cargo check (tauri app)
+        working-directory: src-tauri
+        run: cargo check

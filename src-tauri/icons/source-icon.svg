@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Openfile app icon — literary contract: paper ground, ink glyph, no gradients.
+       Big Sur rounded-rect: 824x824 centered, r≈185. -->
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="#faf7f0"/>
+  <rect x="106" y="106" width="812" height="812" rx="179" fill="none" stroke="#e8e4d8" stroke-width="10"/>
+  <!-- open book silhouette, ink -->
+  <path fill="#111111" d="
+    M 512 402
+    C 452 362, 352 350, 272 366
+    L 272 646
+    C 352 630, 452 642, 512 684
+    C 572 642, 672 630, 752 646
+    L 752 366
+    C 672 350, 572 362, 512 402
+    Z"/>
+  <!-- spine slit (paper showing through) -->
+  <path fill="#faf7f0" d="M 505 408 C 509 405, 515 405, 519 408 L 519 664 C 515 660, 509 660, 505 664 Z"/>
+  <!-- page hint lines on both pages, paper color -->
+  <g stroke="#faf7f0" stroke-width="14" stroke-linecap="round" fill="none" opacity="0.9">
+    <path d="M 330 448 C 380 440, 430 444, 468 458"/>
+    <path d="M 330 512 C 380 504, 430 508, 468 522"/>
+    <path d="M 330 576 C 380 568, 430 572, 468 586"/>
+    <path d="M 556 458 C 594 444, 644 440, 694 448"/>
+    <path d="M 556 522 C 594 508, 644 504, 694 512"/>
+    <path d="M 556 586 C 594 572, 644 568, 694 576"/>
+  </g>
+</svg>

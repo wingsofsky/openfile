@@ -1,0 +1,525 @@
+@import "tailwindcss";
+
+/*
+ * Openfile 主题，按 docs/design/literary-style.md 的视觉契约。规则：不新增颜色/字体/动效值，除非先改契约文件。
+ *
+ * 双主题：paper（纸页，默认浅色）/ ink（墨夜），保持"书房深夜"的安静。
+ */
+
+@theme {
+  --font-serif:
+    "Source Serif 4", "Noto Serif SC", "Source Han Serif SC",
+    "Noto Serif CJK SC", Georgia, serif;
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", "PingFang SC",
+    "Microsoft YaHei", sans-serif;
+  --font-mono:
+    ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+
+  --color-ink: #111111;
+  --color-muted: #666666;
+  --color-rule: #e8e4d8;
+  --color-paper: #faf7f0;
+  --color-panel: #f3efe4;
+  --color-card: #fffdf8;
+  --color-accent-warm: #b33a3a;
+  --color-accent-cool: #2a4a6b;
+
+  --duration-base: 200ms;
+  --ease-base: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+:root {
+  color-scheme: light;
+  --hover-surface: rgba(0, 0, 0, 0.045);
+  --active-surface: rgba(0, 0, 0, 0.07);
+  --focus-ring: var(--color-accent-cool);
+  --overlay: rgba(0, 0, 0, 0.35);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+html[data-theme="ink"] {
+  color-scheme: dark;
+  --color-ink: #ececec;
+  --color-muted: #9a9aa6;
+  --color-rule: rgba(255, 255, 255, 0.12);
+  --color-paper: #131315;
+  --color-panel: #1a1a1d;
+  --color-card: #202024;
+  --color-accent-warm: #d98a8a;
+  --color-accent-cool: #8fb4d9;
+  --hover-surface: rgba(255, 255, 255, 0.06);
+  --active-surface: rgba(255, 255, 255, 0.1);
+  --focus-ring: #6b9bd1;
+  --overlay: rgba(0, 0, 0, 0.55);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  /* app 外壳护栏：任何后代布局失约都不得让 document 变得可滚动
+     （否则滚轮会把整个 chrome 滚出视口）——滚动永远发生在视图内部 */
+  overflow: hidden;
+}
+
+body {
+  margin: 0;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color var(--duration-base) var(--ease-base);
+}
+
+*:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+/* 审阅模式的正文是写作面不是控件：焦点就是光标，不画环，审阅和阅读长得一样（美学契约 Focus 一节的例外） */
+.prose-reader[contenteditable]:focus-visible {
+  outline: none;
+}
+/* 选中文字后焦点进了批注条，浏览器的选区就不显示了：用系统选区色把它留在原处 */
+::highlight(review-selection) {
+  background-color: Highlight;
+  color: HighlightText;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-muted) 30%, transparent);
+  border-radius: 5px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* 长文排版（md 阅读视图 / docx 预览共用）—— 契约本体                      */
+/* ------------------------------------------------------------------ */
+
+.prose-reader {
+  font-family: var(--font-serif);
+  font-size: calc(18px * var(--prose-scale, 1));
+  line-height: 1.8;
+  color: var(--color-ink);
+  max-width: 72ch;
+  margin-inline: auto;
+  overflow-wrap: break-word;
+}
+
+.prose-reader :is(h1, h2, h3, h4, h5, h6) {
+  font-weight: 700;
+  line-height: 1.35;
+  margin: 2em 0 0.6em;
+  text-wrap: balance;
+}
+.prose-reader h1 {
+  font-size: 1.7em;
+  margin-top: 0.8em;
+}
+.prose-reader h2 {
+  font-size: 1.4em;
+  padding-top: 0.9em;
+  border-top: 1px solid var(--color-rule);
+}
+.prose-reader h3 {
+  font-size: 1.18em;
+}
+.prose-reader h4,
+.prose-reader h5,
+.prose-reader h6 {
+  font-size: 1em;
+}
+.prose-reader p {
+  margin: 0 0 1em;
+}
+.prose-reader ul,
+.prose-reader ol {
+  margin: 0 0 1em;
+  padding-left: 1.6em;
+}
+.prose-reader li {
+  margin-bottom: 0.35em;
+}
+.prose-reader blockquote {
+  margin: 1.2em 0;
+  padding: 0.1em 0 0.1em 1.1em;
+  border-left: 2px solid var(--color-rule);
+  color: var(--color-muted);
+}
+.prose-reader hr {
+  border: none;
+  border-top: 1px solid var(--color-rule);
+  margin: 2.4em auto;
+  max-width: 12ch;
+}
+.prose-reader a {
+  color: var(--color-accent-cool);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-accent-cool) 35%, transparent);
+}
+.prose-reader a:hover {
+  border-bottom-color: var(--color-accent-cool);
+}
+.prose-reader img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 2px;
+}
+.prose-reader code {
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  background: var(--color-panel);
+  border: 1px solid var(--color-rule);
+  border-radius: 2px;
+  padding: 0.08em 0.35em;
+}
+.prose-reader pre {
+  background: var(--color-panel);
+  border: 1px solid var(--color-rule);
+  border-radius: 3px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  margin: 0 0 1.2em;
+  line-height: 1.55;
+}
+.prose-reader pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.78em;
+}
+.prose-reader .tablewrap {
+  overflow-x: auto;
+  margin: 0 0 1.2em;
+  border: 1px solid var(--color-rule);
+  border-radius: 3px;
+}
+.prose-reader table {
+  border-collapse: collapse;
+  width: 100%;
+  font-family: var(--font-sans);
+  font-size: 0.78em;
+  line-height: 1.55;
+  font-variant-numeric: tabular-nums;
+}
+.prose-reader th {
+  text-align: left;
+  font-weight: 600;
+  background: var(--color-panel);
+  border-bottom: 1px solid var(--color-rule);
+  padding: 8px 12px;
+  white-space: nowrap;
+}
+.prose-reader td {
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--color-rule);
+  vertical-align: top;
+}
+.prose-reader tr:last-child td {
+  border-bottom: none;
+}
+.prose-reader input[type="checkbox"] {
+  accent-color: var(--color-accent-cool);
+  margin-right: 0.4em;
+}
+.prose-reader .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.2em 0;
+}
+
+/* 渐进渲染块：视口外跳过布局与绘制。content-visibility 带绘制裁剪，块外的东西画不出来，
+   所以块向左让出 14px 页边（负 margin 抵消，正文对齐线不动），本轮改动的细线画在这里 */
+.md-chunk {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 600px;
+  margin-left: -14px;
+  padding-left: 14px;
+}
+
+/* ------------------------------------------------------------------ */
+/* UI 组件基元                                                          */
+/* ------------------------------------------------------------------ */
+
+.btn {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  border-radius: 3px;
+  padding: 5px 12px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  background: transparent;
+  color: var(--color-ink);
+  transition:
+    background-color var(--duration-base) var(--ease-base),
+    color var(--duration-base) var(--ease-base);
+}
+.btn:hover {
+  background: var(--hover-surface);
+}
+.btn-primary {
+  background: var(--color-ink);
+  color: var(--color-paper);
+  padding: 8px 18px;
+}
+.btn-primary:hover {
+  background: color-mix(in srgb, var(--color-ink) 82%, var(--color-paper));
+}
+.btn-outline {
+  border-color: var(--color-ink);
+}
+.btn-outline:hover {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 3px;
+  color: var(--color-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color var(--duration-base) var(--ease-base);
+}
+.icon-btn:hover {
+  background: var(--hover-surface);
+  color: var(--color-ink);
+}
+
+/* ------------------------------------------------------------------ */
+/* 词级 diff：墨蓝=新增，编辑红=删除，克制的底色而非荧光             */
+/* ------------------------------------------------------------------ */
+
+.diff-ins {
+  text-decoration: none;
+  background: color-mix(in srgb, var(--color-accent-cool) 16%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-accent-cool) 45%, transparent);
+  border-radius: 1px;
+}
+.diff-del {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  background: color-mix(in srgb, var(--color-accent-warm) 13%, transparent);
+  color: color-mix(in srgb, var(--color-ink) 62%, var(--color-paper));
+  border-radius: 1px;
+}
+
+/* 会话本轮改过的段落（阅读视图只标出，保留 / 撤回在「审改动」里做）。
+   页边一条细线，正文不缩进、不铺底色；线落在 .md-chunk 让出的页边里 */
+.prose-reader .md-turn-changed:not(tr) {
+  position: relative;
+}
+.prose-reader .md-turn-changed:not(tr)::before {
+  content: "";
+  position: absolute;
+  top: 0.2em;
+  bottom: 0.2em;
+  left: -10px;
+  width: 2px;
+  background: var(--color-accent-cool);
+}
+/* 列表项（及项里的段落）：线越过项目符号，与正文段落的线对齐 */
+.prose-reader :is(li.md-turn-changed, li > p.md-turn-changed)::before {
+  left: calc(-1.6em - 10px);
+}
+.prose-reader h2.md-turn-changed::before {
+  top: 0.9em;
+}
+/* 表格行：定位在表格里不可靠，线画在首格框内（单元格自带内边距，不压字） */
+.prose-reader tr.md-turn-changed > :first-child {
+  box-shadow: inset 2px 0 0 var(--color-accent-cool);
+}
+
+/* PDF 页面（画布自带白底）与 pdf.js 文字层（取自 pdf.js text_layer_builder.css 的必要子集，
+   选中色换成本站 accent-cool） */
+.pdf-doc .pdf-page {
+  position: relative;
+  margin: 0 auto 16px;
+  background: var(--color-card);
+  box-shadow: 0 0 0 1px var(--color-rule);
+}
+.pdf-doc .pdf-page canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.pdf-doc .textLayer {
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+  text-align: initial;
+  opacity: 1;
+  line-height: 1;
+  letter-spacing: normal;
+  word-spacing: normal;
+  text-size-adjust: none;
+  forced-color-adjust: none;
+  transform-origin: 0 0;
+  caret-color: CanvasText;
+  z-index: 0;
+  --min-font-size: 1;
+  --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size));
+  --min-font-size-inv: calc(1 / var(--min-font-size));
+}
+.pdf-doc .textLayer :is(span, br) {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
+  user-select: text;
+}
+.pdf-doc .textLayer > :not(.markedContent),
+.pdf-doc .textLayer .markedContent span:not(.markedContent) {
+  z-index: 1;
+  --font-height: 0;
+  font-size: calc(var(--text-scale-factor) * var(--font-height));
+  --scale-x: 1;
+  --rotate: 0deg;
+  transform: rotate(var(--rotate)) scaleX(var(--scale-x)) scale(var(--min-font-size-inv));
+}
+.pdf-doc .textLayer .markedContent {
+  display: contents;
+}
+.pdf-doc .textLayer span[role="img"] {
+  user-select: none;
+  cursor: default;
+}
+.pdf-doc .textLayer ::selection {
+  background: color-mix(in srgb, var(--color-accent-cool) 30%, transparent);
+  color: transparent;
+}
+.pdf-doc .textLayer br::selection {
+  background: transparent;
+}
+
+/* docx-preview 的外框换成本站 token（库自带灰底和黑色投影）；纸张是文档内容，保持白纸。
+   页面比视图宽时靠左排、可横向滚动（居中的 flex 项溢出时左边会滚不到） */
+.docx-doc .docx-wrapper {
+  background: var(--color-panel);
+  padding: 24px 16px 8px;
+  align-items: flex-start;
+}
+.docx-doc .docx-wrapper > section.docx {
+  margin: 0 auto 16px;
+  box-shadow: 0 0 0 1px var(--color-rule);
+}
+/* 本轮改过的段落：竖线画在段落左外侧，不改文档排版 */
+.docx-doc p.docx-turn-changed {
+  box-shadow: -4px 0 0 -2px var(--color-accent-cool);
+  background: color-mix(in srgb, var(--color-accent-cool) 8%, transparent);
+}
+
+/* ------------------------------------------------------------------ */
+/* 审阅标记（CriticMarkup 渲染层）：与 diff 同色系，加可点击暗示        */
+/* ------------------------------------------------------------------ */
+
+.prose-reader ins.cm-ins {
+  text-decoration: none;
+  background: color-mix(in srgb, var(--color-accent-cool) 15%, transparent);
+  border-bottom: 1.5px solid color-mix(in srgb, var(--color-accent-cool) 55%, transparent);
+  border-radius: 1px;
+  cursor: pointer;
+}
+.prose-reader del.cm-del {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  background: color-mix(in srgb, var(--color-accent-warm) 12%, transparent);
+  color: color-mix(in srgb, var(--color-ink) 60%, var(--color-paper));
+  border-radius: 1px;
+  cursor: pointer;
+}
+.prose-reader .cm-sub {
+  /* 替换对：删+增连体渲染 */
+}
+/* 修订里的换行：¶ 不进文字节点，选不中、复制不到 */
+.prose-reader .cm-break::after {
+  content: "¶";
+  margin-left: 0.1em;
+  opacity: 0.6;
+}
+.prose-reader span.cm-comment {
+  display: inline-block;
+  margin: 0 0.15em;
+  padding: 0.05em 0.5em;
+  font-family: var(--font-sans);
+  font-size: 0.72em;
+  line-height: 1.6;
+  vertical-align: 0.12em;
+  color: var(--color-muted);
+  background: var(--color-panel);
+  border: 1px solid var(--color-rule);
+  border-left: 2px solid var(--color-accent-warm);
+  border-radius: 3px;
+  cursor: pointer;
+  max-width: 34ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.prose-reader span.cm-comment:hover {
+  white-space: normal;
+  max-width: none;
+}
+.prose-reader mark.cm-mark {
+  background: color-mix(in srgb, var(--color-accent-warm) 18%, transparent);
+  color: inherit;
+  border-radius: 1px;
+  cursor: pointer;
+}
+.prose-reader .agent-note {
+  color: var(--color-accent-cool);
+  background: color-mix(in srgb, var(--color-accent-cool) 8%, transparent);
+  border-radius: 2px;
+}
+
+/* ------------------------------------------------------------------ */
+/* agent 会话面板：窄栏里的对话排版（沿用 prose-reader，仅缩尺寸）     */
+/* ------------------------------------------------------------------ */
+
+.prose-reader.agent-prose {
+  font-size: 14px;
+  line-height: 1.7;
+  max-width: none;
+  margin-inline: 0;
+}
+.prose-reader.agent-prose :is(h1, h2, h3, h4, h5, h6) {
+  font-size: 1em;
+  margin: 1.2em 0 0.4em;
+  border: none;
+  padding: 0;
+}
+.prose-reader.agent-prose p {
+  margin-bottom: 0.6em;
+}
+.prose-reader.agent-prose p:last-child {
+  margin-bottom: 0;
+}
+.prose-reader.agent-prose pre {
+  padding: 8px 10px;
+  margin-bottom: 0.8em;
+}

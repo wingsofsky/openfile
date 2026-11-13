@@ -1,0 +1,93 @@
+{
+  "comment": "可执行文件发现的夹具：tests/agent-discovery.test.mjs 读它。目录名照各 CLI 的安装布局。所有相对路径都相对一个临时根目录，它同时是主目录；env 与 path 里的值也相对它。files 建成空文件，mtimes 是秒。expect 列出每个有 bin 的登记表条目：candidates 是发现规则给出且存在的文件（按顺序），bin 是最终解析结果（null = 找不到）。",
+  "cases": [
+    {
+      "name": "Windows 真机布局：codex 内嵌副本取最新、claude-code 版本加哈希层、PATH 只认 .exe",
+      "platform": "win32",
+      "env": { "LOCALAPPDATA": "AppData/Local", "APPDATA": "AppData/Roaming" },
+      "path": ["bin"],
+      "files": [
+        "AppData/Local/OpenAI/Codex/bin/9614f1d9b40d9c4f/codex.exe",
+        "AppData/Local/OpenAI/Codex/bin/5c3a0e1b2d4f6a8c/codex.exe",
+        "AppData/Local/OpenAI/Codex/bin/readme.txt",
+        ".codex/.sandbox-bin/codex.exe",
+        "AppData/Roaming/Claude/claude-code/2.1.295/d2e29494ec83/claude.exe",
+        "AppData/Roaming/Claude/claude-code/2.1.299/f0584be0fbaf/claude.exe",
+        "AppData/Roaming/Claude/claude-code/2.1.9/claude.exe",
+        "AppData/Roaming/Claude/claude-code/backups/claude.exe",
+        "AppData/Local/agy/bin/agy.exe",
+        ".grok/bin/grok.exe",
+        ".grok/bin/agent.exe",
+        "bin/agy.exe",
+        "bin/codex",
+        "bin/codex.cmd"
+      ],
+      "mtimes": {
+        "AppData/Local/OpenAI/Codex/bin/9614f1d9b40d9c4f/codex.exe": 1792000000,
+        "AppData/Local/OpenAI/Codex/bin/5c3a0e1b2d4f6a8c/codex.exe": 1790000000
+      },
+      "expect": {
+        "codex": {
+          "candidates": [
+            "AppData/Local/OpenAI/Codex/bin/9614f1d9b40d9c4f/codex.exe",
+            "AppData/Local/OpenAI/Codex/bin/5c3a0e1b2d4f6a8c/codex.exe",
+            ".codex/.sandbox-bin/codex.exe"
+          ],
+          "bin": "AppData/Local/OpenAI/Codex/bin/9614f1d9b40d9c4f/codex.exe"
+        },
+        "agy": { "candidates": ["AppData/Local/agy/bin/agy.exe"], "bin": "bin/agy.exe" },
+        "grok": { "candidates": [".grok/bin/grok.exe"], "bin": ".grok/bin/grok.exe" },
+        "claude": {
+          "candidates": [
+            "AppData/Roaming/Claude/claude-code/2.1.299/f0584be0fbaf/claude.exe",
+            "AppData/Roaming/Claude/claude-code/2.1.295/d2e29494ec83/claude.exe",
+            "AppData/Roaming/Claude/claude-code/2.1.9/claude.exe"
+          ],
+          "bin": "AppData/Roaming/Claude/claude-code/2.1.299/f0584be0fbaf/claude.exe"
+        }
+      }
+    },
+    {
+      "name": "Windows：环境变量覆盖 > PATH > 发现规则；覆盖值照用、不验存在",
+      "platform": "win32",
+      "env": { "LOCALAPPDATA": "AppData/Local", "APPDATA": "AppData/Roaming", "OPENFILE_GROK_BIN": "custom/grok.exe" },
+      "path": ["bin"],
+      "files": ["bin/grok.exe", "bin/codex.exe"],
+      "expect": {
+        "codex": { "candidates": [], "bin": "bin/codex.exe" },
+        "agy": { "candidates": [], "bin": null },
+        "grok": { "candidates": [], "bin": "custom/grok.exe" },
+        "claude": { "candidates": [], "bin": null }
+      }
+    },
+    {
+      "name": "macOS：claude-code 在 Application Support 里（claude.app 内的可执行文件），~/.local/bin 既是发现规则也在 searchPath 里，无扩展名",
+      "platform": "darwin",
+      "env": {},
+      "path": ["bin"],
+      "files": [
+        "Library/Application Support/Claude/claude-code/2.1.260/claude.app/Contents/MacOS/claude",
+        "Library/Application Support/Claude/claude-code/2.1.9/claude.app/Contents/MacOS/claude",
+        "Library/Application Support/Claude/claude-code/1.0.0/claude.app/Contents/MacOS/claude",
+        "Library/Application Support/Claude/claude-code/backups/claude.app/Contents/MacOS/claude",
+        ".local/bin/codex",
+        ".grok/bin/grok",
+        ".grok/bin/grok.exe",
+        "AppData/Local/agy/bin/agy.exe"
+      ],
+      "expect": {
+        "codex": { "candidates": [".local/bin/codex"], "bin": ".local/bin/codex" },
+        "agy": { "candidates": [], "bin": null },
+        "grok": { "candidates": [".grok/bin/grok"], "bin": ".grok/bin/grok" },
+        "claude": {
+          "candidates": [
+            "Library/Application Support/Claude/claude-code/2.1.260/claude.app/Contents/MacOS/claude",
+            "Library/Application Support/Claude/claude-code/2.1.9/claude.app/Contents/MacOS/claude",
+            "Library/Application Support/Claude/claude-code/1.0.0/claude.app/Contents/MacOS/claude"
+          ],
+          "bin": "Library/Application Support/Claude/claude-code/2.1.260/claude.app/Contents/MacOS/claude"
+        }
+      }
+    }
+  ]
+}

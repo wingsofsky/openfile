@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Openfile</title>
+    <script>
+      // 防 FOUC：渲染前定主题
+      (function () {
+        try {
+          var t = localStorage.getItem("openfile:theme");
+          if (t !== "paper" && t !== "ink") {
+            t = window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "ink"
+              : "paper";
+          }
+          document.documentElement.dataset.theme = t;
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

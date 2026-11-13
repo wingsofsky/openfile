@@ -1,0 +1,21 @@
+# 文本一律以 LF 入库、以 LF 检出——不随 core.autocrlf 走（Git for Windows 默认 true，
+# 会把工作区改成 CRLF，解析器、快照契约与跨平台测试都按 LF 写）。
+* text=auto eol=lf
+
+# cmd.exe 的批处理要 CRLF（LF 下标签 / GOTO 会错位）
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# 二进制：不做换行转换、不做文本 diff
+*.png binary
+*.ico binary
+*.icns binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.woff binary
+*.woff2 binary
+*.pdf binary
+*.docx binary
+*.zip binary
+*.wasm binary

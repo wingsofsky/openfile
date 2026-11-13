@@ -1,0 +1,53 @@
+{
+  "name": "@openfile/runtime",
+  "version": "0.2.0",
+  "type": "module",
+  "description": "Openfile runtime: the MCP server that lets any agent read a folder, suggest CriticMarkup edits and look at snapshots, plus the local API behind the Openfile reader.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wingsofsky/openfile.git",
+    "directory": "packages/runtime"
+  },
+  "homepage": "https://github.com/wingsofsky/openfile/tree/main/packages/runtime#readme",
+  "keywords": [
+    "mcp",
+    "agent",
+    "criticmarkup",
+    "claude-code",
+    "codex",
+    "cli"
+  ],
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "bin": {
+    "openfile": "dist/cli.mjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "prepack": "node scripts/build.mjs --cli"
+  },
+  "dependencies": {
+    "@adeu/core": "^3.0.7",
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "chardetng-wasm": "1.0.2",
+    "rehype-parse": "^9.0.1",
+    "rehype-remark": "^10.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-stringify": "^11.0.0",
+    "unified": "^11.0.5",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@openfile/protocol": "workspace:*",
+    "@types/hast": "^3.0.5",
+    "esbuild": "^0.28.2"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
