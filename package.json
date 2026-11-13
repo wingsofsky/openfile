@@ -85,6 +85,6 @@
     "vite": "^7.0.4",
     "vitest": "^4.1.11"
   },
-  "description": "Openfile — the document UI for CLI agents",
+  "description": "Openfile — a multi-format file reader for working with multiple agents",
   "license": "Apache-2.0"
 }

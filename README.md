@@ -1,6 +1,6 @@
 # Openfile
 
-**A reader for the files AI agents write, built to review them with the agent.**
+**A multi-format file reader for working with multiple agents, with built-in Review and Edit modes.**
 
 [![CI](https://github.com/wingsofsky/openfile/actions/workflows/ci.yml/badge.svg)](https://github.com/wingsofsky/openfile/actions/workflows/ci.yml)
 

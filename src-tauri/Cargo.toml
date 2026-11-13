@@ -1,7 +1,7 @@
 [package]
 name = "openfile"
 version = "0.1.0"
-description = "Openfile — the document UI for CLI agents"
+description = "Openfile — a multi-format file reader for working with multiple agents"
 authors = ["wingsofsky"]
 license = "Apache-2.0"
 edition = "2021"

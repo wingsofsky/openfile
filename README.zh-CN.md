@@ -1,6 +1,6 @@
 # Openfile
 
-**为 AI agent 写出来的文件做的阅读器，也是和 agent 一起审阅的地方。**
+**与多 agent 协作、支持多格式文件的阅读器，内置审阅 / 编辑模式。**
 
 [![CI](https://github.com/wingsofsky/openfile/actions/workflows/ci.yml/badge.svg)](https://github.com/wingsofsky/openfile/actions/workflows/ci.yml)
 
