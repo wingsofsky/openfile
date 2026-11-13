@@ -1,12 +1,14 @@
 # Openfile
 
-**A multi-format reader for reviewing with your agents: you edit, comment and ask; they revise and answer.**
+**A Markdown reader for reviewing with your agents.**
+
+Word, PDF and HTML become Markdown drafts. You edit, comment and ask in the text, and the agent revises and answers.
 
 [![CI](https://github.com/wingsofsky/openfile/actions/workflows/ci.yml/badge.svg)](https://github.com/wingsofsky/openfile/actions/workflows/ci.yml)
 
 **English** · [简体中文](README.zh-CN.md)
 
-Open a folder and read what your agents left in it: Markdown, HTML reports, Word, PDF, images and plain text. Mark it up the way you would a colleague's draft: edit the text, comment and ask questions where they apply. Then hand it to an agent, in the chat beside the document or by copying a ready-made prompt, and the agent revises the document and answers you. Keep or undo each change it made, one at a time or a whole turn at once. Everything stays plain text in your folder.
+Open a folder and read what your agents left in it: Markdown, HTML reports, Word, PDF, images and plain text. Mark it up the way you would a colleague's draft: edit the text, comment and ask questions where they apply. Then hand it to an agent in the chat beside the document, and it revises the document and answers you; keep or undo each change it made, one at a time or a whole turn at once. You can also click **Copy prompt** and paste the one-line request into your agent's own chat, such as the Claude Code or Codex desktop app. Everything stays plain text in your folder.
 
 ![Openfile in the Review view: a research draft with insertions, deletions and comments, and a Claude Code chat in the side panel that answered them](docs/images/review-and-chat-en.webp)
 
@@ -19,6 +21,7 @@ Open a folder and read what your agents left in it: Markdown, HTML reports, Word
 - **Edit directly.** The Edit view shows the Markdown source, marks included, and edits plain text files the same way.
 - **Bring Word, PDF and HTML into the same review.** A Word document becomes a Markdown draft you review, then exports as a Word copy with native tracked changes and comments. A PDF becomes reading notes to highlight and comment on, with links back to each page. An HTML report becomes a draft whose changes the agent applies back to the report. Originals are never overwritten.
 - **Chat with an agent beside the document.** Claude Code, Codex, Gemini CLI, Grok or Antigravity runs in the side panel on your own sign-in. It sees the file you have open, and after each turn Openfile marks what changed, so you keep or roll back each block, or the whole turn.
+- **Hand it to any agent with one prompt.** **Copy prompt** copies one line with the file's exact path, such as `Read my comments in D:\notes\report.md, answer the questions and apply the changes`, in the interface language. Paste it into Claude Code, Codex or any agent's chat.
 - **Let your desktop agent work in it.** An agent with a browser pane, such as Claude Code in the desktop app, can open Openfile there and edit or comment while you watch the same view.
 - **Connect any agent over MCP.** Thirteen tools let Claude Code, Codex or another agent read and search the folder, write its changes as suggestions and compare snapshots.
 - **Go back in time.** Openfile snapshots the folder as it changes. The timeline shows word-level differences and restores one file or the whole folder. Snapshots live in Openfile's own data folder; your `.git` is never touched.
@@ -42,9 +45,13 @@ Three views of the same file: **Read** is for reading, and selecting text there 
 
 ![A Word review draft: tracked insertions, deletions and a comment, with Export Word revision in the toolbar](docs/images/word-draft-en.webp)
 
-**Two ways to work with an agent**, both writing the same plain text:
+**Three ways to work with an agent**, all writing the same plain text:
 
-![Two ways to change a document with an agent: chat in the side panel, or let your desktop agent open Openfile in its browser pane](docs/images/agents.svg)
+![Three ways to change a document with an agent: chat in the side panel, copy a one-line prompt into your agent's own chat, or let your desktop agent open Openfile in its browser pane](docs/images/agents.svg)
+
+**Copy prompt** puts the request on the clipboard in the interface language; paste it into your agent's chat:
+
+![A desktop agent's chat box with the copied request: Read my comments in D:\Openfile\AGENTS.md, answer the questions and apply the changes](docs/images/copy-prompt-en.webp)
 
 After a chat turn, Openfile shows what that turn changed, block by block:
 

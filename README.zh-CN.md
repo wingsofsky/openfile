@@ -1,12 +1,14 @@
 # Openfile
 
-**和 agent 一起审稿的多格式阅读器：你改、批注、提问，agent 修改、回答。**
+**和 agent 一起审稿的 Markdown 阅读器。**
+
+Word、PDF、HTML 都转成 Markdown 审阅稿。你在正文里改、批注、提问，agent 修改、回答。
 
 [![CI](https://github.com/wingsofsky/openfile/actions/workflows/ci.yml/badge.svg)](https://github.com/wingsofsky/openfile/actions/workflows/ci.yml)
 
 [English](README.md) · **简体中文**
 
-打开一个文件夹，读 agent 留在里面的东西：Markdown、HTML 报告、Word、PDF、图片和纯文本。像审同事的稿子一样在上面改：直接改正文，在要说的地方写批注、提问题。然后交给 agent：在文档旁边的侧栏里说，或者复制现成的提示词给任何 agent，agent 就会修改文档、回答你。它改的每一处都可以保留或撤回，一处一处来，或者整轮来。所有东西都以纯文本留在你的文件夹里。
+打开一个文件夹，读 agent 留在里面的东西：Markdown、HTML 报告、Word、PDF、图片和纯文本。像审同事的稿子一样在上面改：直接改正文，在要说的地方写批注、提问题。然后在文档旁边的侧栏里交给 agent，它会修改文档、回答你；它改的每一处都可以保留或撤回，一处一处来，或者整轮来。也可以点「复制提示词」，把这一句请求贴进 agent 自己的对话框，比如 Claude Code 或 Codex 的桌面版。所有东西都以纯文本留在你的文件夹里。
 
 ![审阅模式下的 Openfile：一份调研稿里有插入、删除和批注，右栏是回应这些批注的 Claude Code 对话](docs/images/review-and-chat.webp)
 
@@ -19,6 +21,7 @@
 - **直接编辑。** 编辑模式显示带标记的 Markdown 原文，纯文本文件也用这个模式改。
 - **Word、PDF、HTML 进同一套审阅。** Word 转成一份 Markdown 审阅稿，审完导出带 Word 原生修订和批注的副本；PDF 转成可以高亮、批注的阅读笔记，每页都能跳回原文；HTML 报告转成审阅稿，由 agent 把改动写回报告。原件永远不会被覆盖。
 - **在文档旁边和 agent 对话。** Claude Code、Codex、Gemini CLI、Grok 或 Antigravity 在侧栏里运行，用的是你自己的登录。agent 能看到你正打开的文件；每一轮结束后，Openfile 标出改了什么，你可以逐块保留或撤回，也可以整轮撤回。
+- **一句提示词交给任何 agent。** 「复制提示词」复制一句带文件精确路径的请求，比如 `看一下 D:\笔记\报告.md 我的批注，回答问题并应用改动`，语言跟随界面。贴进 Claude Code、Codex 或任何 agent 的对话框。
 - **让桌面版 agent 进来干活。** 带浏览器面板的 agent（比如桌面应用里的 Claude Code）可以在面板里打开 Openfile，直接改或写批注，你在同一个画面里看着。
 - **通过 MCP 接入任何 agent。** 13 个工具让 Claude Code、Codex 或别的 agent 读取、搜索文件夹，把修改写成建议，拍快照并对比。
 - **随时回到过去。** Openfile 在文件夹变化时自动拍快照。时间线按词显示差异，可以恢复单个文件或整个文件夹。快照存在 Openfile 自己的数据目录里，从不碰你的 `.git`。
@@ -42,9 +45,13 @@
 
 ![Word 审阅稿：正文里有插入、删除和一条批注，工具栏有「导出 Word 修订稿」](docs/images/word-draft.webp)
 
-**和 agent 一起改的两种办法**，写的都是同一份纯文本：
+**和 agent 一起改的三种办法**，写的都是同一份纯文本：
 
-![和 agent 一起改文档的两种办法：在侧栏对话，或让桌面版 agent 在它的浏览器面板里打开 Openfile](docs/images/agents.svg)
+![和 agent 一起改文档的三种办法：在侧栏对话，把一句提示词贴进 agent 自己的对话框，或让桌面版 agent 在它的浏览器面板里打开 Openfile](docs/images/agents.svg)
+
+「复制提示词」把请求放进剪贴板，语言跟随界面，贴进 agent 的对话框就行：
+
+![桌面版 agent 的对话框里贴着复制来的请求：看一下 D:\Openfile\AGENTS.md 我的批注，回答问题并应用改动](docs/images/copy-prompt.webp)
 
 一轮对话结束后，Openfile 按块列出这一轮改了什么：
 

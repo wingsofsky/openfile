@@ -218,8 +218,8 @@ export async function copyPath(rel: string, absolute: boolean) {
 }
 
 /**
- * 交给 agent 的预设提示词：带文件在磁盘上的精确绝对路径，复制进剪贴板，贴进 CC 等会话。
- * 这是发给 agent 的内容，不是界面文案，不过 t()。
+ * 交给 agent 的预设提示词：带文件在磁盘上的精确绝对路径，复制进剪贴板，贴进 agent 的对话框。
+ * 跟随界面语言：英文界面复制英文提示词（agent 用什么语言回答，多半跟着提示词走）。
  */
 export function reviewPrompt(root: string, rel: string): string {
   return t("看一下 {0} 我的批注，回答问题并应用改动", [libraryAbsPath(root, rel)]);
